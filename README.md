@@ -5,10 +5,10 @@
 ## Installation
 
   With Cargo:
-  ```toml
-  [dependencies.termios]
-  git = "https://github.com/nathan7/termios.rs.git"
-  ```
+```toml
+[dependencies.termios]
+git = "https://github.com/nathan7/termios.rs.git"
+```
 
 ## Platform notes
 
