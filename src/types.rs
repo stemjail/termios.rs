@@ -36,7 +36,7 @@ pub struct ControlCharacters {
 }
 
 bitflags!{
-  flags InputFlags: uint {
+  flags InputFlags: libc::c_ulong {
     // Ignore BREAK condition on input.
     static IGNBRK  = 0x1,
     // If  IGNBRK is set, a BREAK is ignored. If it is not set but BRKINT is set, then a BREAK
@@ -167,7 +167,7 @@ impl fmt::Show for InputFlags {
 }
 
 bitflags!{
-  flags OutputFlags: uint {
+  flags OutputFlags: libc::c_ulong {
     // Enable implementation-defined output processing.
     static OPOST  = 0x1,
     // (not in POSIX) Map lowercase characters to uppercase on output.
@@ -331,7 +331,7 @@ impl fmt::Show for OutputFlags {
 
 
 bitflags!{
-  flags ControlFlags: uint {
+  flags ControlFlags: libc::c_ulong {
     // character size
     static CS5 = 0x0,
     static CS6 = 0x10,
@@ -450,7 +450,7 @@ impl fmt::Show for ControlFlags {
 }
 
 bitflags!{
-  flags LocalFlags: uint {
+  flags LocalFlags: libc::c_ulong {
     // When any of the characters INTR, QUIT, SUSP, or DSUSP are received, generate the
     // corresponding signal.
     static ISIG = 0x1,
