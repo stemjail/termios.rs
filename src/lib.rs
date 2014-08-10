@@ -9,7 +9,7 @@ use std::mem::zeroed;
 mod types;
 mod bindings;
 
-trait Termio {
+pub trait Termio {
   fn tcgetattr(&self) -> IoResult<Termios>;
   fn tcsetattr(&mut self, when: When, termios: Termios) -> IoResult<()>;
 }
