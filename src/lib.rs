@@ -1,4 +1,5 @@
 #![feature(globs)]
+#![feature(unsafe_destructor)]
 extern crate libc;
 extern crate native;
 
@@ -14,7 +15,10 @@ mod bindings;
 pub trait Termio {
   fn tcgetattr(&self) -> IoResult<Termios>;
   fn tcsetattr(&self, when: When, termios: Termios) -> IoResult<()>;
+  fn tcsetattr_auto(&self, termios: Termios) -> IoResult<TermioHandle>;
 }
+
+pub struct TermioHandle<'a>(&'a Termio, Termios);
 
 impl Termio for FileDesc {
   fn tcgetattr(&self) -> IoResult<Termios> {
@@ -36,5 +40,18 @@ impl Termio for FileDesc {
    }
 
    Ok(())
+  }
+
+  fn tcsetattr_auto(&self, termios: Termios) -> IoResult<TermioHandle> {
+    try!(self.tcsetattr(TCSANOW, termios));
+    Ok(TermioHandle(self, termios))
+  }
+}
+
+#[unsafe_destructor]
+impl<'a> Drop for TermioHandle<'a> {
+  fn drop(&mut self) {
+    let &TermioHandle(termio, termios) = self;
+    termio.tcsetattr(TCSANOW, termios).unwrap();
   }
 }
