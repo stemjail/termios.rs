@@ -16,10 +16,10 @@ mod bindings;
 pub trait Termio {
   fn tcgetattr(&self) -> IoResult<Termios>;
   fn tcsetattr(&self, when: When, termios: &Termios) -> IoResult<()>;
-  fn tcsetattr_auto<'a>(&'a self, termios: &Termios) -> IoResult<TermioHandle>;
+  fn tcsetattr_auto(&self, termios: &Termios) -> IoResult<TermioHandle>;
 }
 
-pub struct TermioHandle<'a>(fd_t, Termios);
+pub struct TermioHandle(fd_t, Termios);
 
 impl Termio for FileDesc {
   fn tcgetattr(&self) -> IoResult<Termios> {
@@ -43,14 +43,13 @@ impl Termio for FileDesc {
    Ok(())
   }
 
-  fn tcsetattr_auto<'a>(&'a self, termios: &Termios) -> IoResult<TermioHandle> {
+  fn tcsetattr_auto(&self, termios: &Termios) -> IoResult<TermioHandle> {
     try!(self.tcsetattr(TCSANOW, termios));
     Ok(TermioHandle(self.fd(), *termios))
   }
 }
 
-#[unsafe_destructor]
-impl<'a> Drop for TermioHandle<'a> {
+impl Drop for TermioHandle {
   fn drop(&mut self) {
     let &TermioHandle(fd, termios) = self;
     let fd = FileDesc::new(fd, false);
