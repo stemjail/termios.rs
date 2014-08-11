@@ -4,6 +4,7 @@ extern crate libc;
 extern crate native;
 
 use native::io::FileDesc;
+use native::io::file::fd_t;
 use std::io::{IoResult, IoError};
 pub use types::*;
 use std::mem::{zeroed, transmute};
@@ -15,10 +16,10 @@ mod bindings;
 pub trait Termio {
   fn tcgetattr(&self) -> IoResult<Termios>;
   fn tcsetattr(&self, when: When, termios: &Termios) -> IoResult<()>;
-  fn tcsetattr_auto(&self, termios: &Termios) -> IoResult<TermioHandle>;
+  fn tcsetattr_auto<'a>(&'a self, termios: &Termios) -> IoResult<TermioHandle>;
 }
 
-pub struct TermioHandle<'a>(&'a Termio, Termios);
+pub struct TermioHandle<'a>(fd_t, Termios);
 
 impl Termio for FileDesc {
   fn tcgetattr(&self) -> IoResult<Termios> {
@@ -42,16 +43,17 @@ impl Termio for FileDesc {
    Ok(())
   }
 
-  fn tcsetattr_auto(&self, termios: &Termios) -> IoResult<TermioHandle> {
+  fn tcsetattr_auto<'a>(&'a self, termios: &Termios) -> IoResult<TermioHandle> {
     try!(self.tcsetattr(TCSANOW, termios));
-    Ok(TermioHandle(self, *termios))
+    Ok(TermioHandle(self.fd(), *termios))
   }
 }
 
 #[unsafe_destructor]
 impl<'a> Drop for TermioHandle<'a> {
   fn drop(&mut self) {
-    let &TermioHandle(termio, termios) = self;
-    termio.tcsetattr(TCSANOW, &termios).unwrap();
+    let &TermioHandle(fd, termios) = self;
+    let fd = FileDesc::new(fd, false);
+    fd.tcsetattr(TCSANOW, &termios).unwrap();
   }
 }
