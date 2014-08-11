@@ -10,11 +10,6 @@
 git = "https://github.com/nathan7/termios.rs.git"
 ```
 
-## Platform notes
-
-  This library probably only works on Linux.
-
-
 ## Documentation
 
   Check out the [documentation]!
