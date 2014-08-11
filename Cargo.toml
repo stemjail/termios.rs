@@ -1,5 +1,5 @@
 [package]
 name = "termios"
-version = "0.0.2"
+version = "1.0.0"
 authors = ["Nathan Zadoks <nathan@nathan7.eu>"]
 build = "make"
