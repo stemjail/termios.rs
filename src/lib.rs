@@ -13,7 +13,7 @@ mod bindings;
 
 pub trait Termio {
   fn tcgetattr(&self) -> IoResult<Termios>;
-  fn tcsetattr(&mut self, when: When, termios: Termios) -> IoResult<()>;
+  fn tcsetattr(&self, when: When, termios: Termios) -> IoResult<()>;
 }
 
 impl Termio for FileDesc {
@@ -28,7 +28,7 @@ impl Termio for FileDesc {
     Ok(termios)
   }
 
-  fn tcsetattr(&mut self, when: When, termios: Termios) -> IoResult<()> {
+  fn tcsetattr(&self, when: When, termios: Termios) -> IoResult<()> {
    let fd = self.fd();
 
    if unsafe { bindings::tcsetattr(fd, when as i32, transmute(&termios)) } < 0 {
