@@ -671,86 +671,152 @@
 <span id='629'>629</span>
 <span id='630'>630</span>
 <span id='631'>631</span>
+<span id='632'>632</span>
+<span id='633'>633</span>
+<span id='634'>634</span>
+<span id='635'>635</span>
+<span id='636'>636</span>
+<span id='637'>637</span>
+<span id='638'>638</span>
+<span id='639'>639</span>
+<span id='640'>640</span>
+<span id='641'>641</span>
+<span id='642'>642</span>
+<span id='643'>643</span>
+<span id='644'>644</span>
+<span id='645'>645</span>
+<span id='646'>646</span>
+<span id='647'>647</span>
+<span id='648'>648</span>
+<span id='649'>649</span>
+<span id='650'>650</span>
+<span id='651'>651</span>
+<span id='652'>652</span>
+<span id='653'>653</span>
+<span id='654'>654</span>
+<span id='655'>655</span>
+<span id='656'>656</span>
+<span id='657'>657</span>
+<span id='658'>658</span>
+<span id='659'>659</span>
+<span id='660'>660</span>
+<span id='661'>661</span>
+<span id='662'>662</span>
+<span id='663'>663</span>
+<span id='664'>664</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>;
-<span class='kw'>use</span> <span class='ident'>libc</span>::<span class='ident'>c_ulong</span>;
+<span class='kw'>use</span> <span class='ident'>bindings</span>::<span class='op'>*</span>;
 
-<span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Show</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Termios</span> {
   <span class='kw'>pub</span> <span class='ident'>input_flags</span>: <span class='ident'>InputFlags</span>,
   <span class='kw'>pub</span> <span class='ident'>output_flags</span>: <span class='ident'>OutputFlags</span>,
   <span class='kw'>pub</span> <span class='ident'>control_flags</span>: <span class='ident'>ControlFlags</span>,
   <span class='kw'>pub</span> <span class='ident'>local_flags</span>: <span class='ident'>LocalFlags</span>,
   <span class='ident'>_line</span>: <span class='ident'>u8</span>, <span class='comment'>// line discipline (unused on POSIX)</span>
-  <span class='kw'>pub</span> <span class='ident'>control_chars</span>: <span class='ident'>ControlCharacters</span>,
+  <span class='kw'>pub</span> <span class='ident'>control_chars</span>: [<span class='ident'>u8</span>, ..<span class='ident'>NCCS_</span>],
   <span class='kw'>pub</span> <span class='ident'>input_speed</span>: <span class='ident'>Speed</span>,
   <span class='kw'>pub</span> <span class='ident'>output_speed</span>: <span class='ident'>Speed</span>,
 }
 
+<span class='kw'>impl</span> <span class='ident'>fmt</span>::<span class='ident'>Show</span> <span class='kw'>for</span> <span class='ident'>Termios</span> {
+  <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unused_must_use</span>, <span class='ident'>dead_assignment</span>)]</span>
+  <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>fmt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>fmt</span>::<span class='ident'>FormatError</span><span class='op'>&gt;</span> {
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;Termios {{ &quot;</span>);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;input_flags: {}, &quot;</span>, <span class='self'>self</span>.<span class='ident'>input_flags</span>);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;output_flags: {}, &quot;</span>, <span class='self'>self</span>.<span class='ident'>output_flags</span>);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;control_flags: {}, &quot;</span>, <span class='self'>self</span>.<span class='ident'>control_flags</span>);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;local_flags: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>local_flags</span>);
+
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;control_chars: {{ &quot;</span>);
+    <span class='kw'>let</span> <span class='kw-2'>ref</span> <span class='ident'>c</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>control_chars</span>;
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VINTR: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VINTR</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VQUIT: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VQUIT</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VERASE: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VERASE</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VKILL: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VKILL</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VEOF: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VEOF</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VTIME: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VTIME</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VMIN: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VMIN</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VSTART: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VSTART</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VSTOP: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VSTOP</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VSUSP: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VSUSP</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VEOL: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VEOL</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VREPRINT: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VREPRINT</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VDISCARD: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VDISCARD</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VWERASE: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VWERASE</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VLNEXT: {}, &quot;</span>, <span class='ident'>c</span>[<span class='ident'>VLNEXT</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot;VEOL2: {} }}&quot;</span>, <span class='ident'>c</span>[<span class='ident'>VEOL2</span> <span class='kw'>as</span> <span class='ident'>uint</span>]);
+
+    <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>fmt</span>, <span class='string'>&quot; }}&quot;</span>);
+
+    <span class='prelude-val'>Ok</span>(())
+  }
+}
+
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Show</span>)]</span>
-<span class='attribute'>#[<span class='ident'>packed</span>]</span>
 <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>uppercase_variables</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ControlCharacters</span> {
-  <span class='kw'>pub</span> <span class='ident'>VINTR</span>    : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VQUIT</span>    : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VERASE</span>   : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VKILL</span>    : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VEOF</span>     : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VTIME</span>    : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VMIN</span>     : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VSWTC</span>    : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VSTART</span>   : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VSTOP</span>    : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VSUSP</span>    : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VEOL</span>     : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VREPRINT</span> : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VDISCARD</span> : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VWERASE</span>  : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VLNEXT</span>   : <span class='ident'>u8</span>,
-  <span class='kw'>pub</span> <span class='ident'>VEOL2</span>    : <span class='ident'>u8</span>,
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>u32</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>ControlCharacter</span> {
+  <span class='ident'>VINTR</span>    <span class='op'>=</span> <span class='ident'>VINTR_</span>,
+  <span class='ident'>VQUIT</span>    <span class='op'>=</span> <span class='ident'>VQUIT_</span>,
+  <span class='ident'>VERASE</span>   <span class='op'>=</span> <span class='ident'>VERASE_</span>,
+  <span class='ident'>VKILL</span>    <span class='op'>=</span> <span class='ident'>VKILL_</span>,
+  <span class='ident'>VEOF</span>     <span class='op'>=</span> <span class='ident'>VEOF_</span>,
+  <span class='ident'>VTIME</span>    <span class='op'>=</span> <span class='ident'>VTIME_</span>,
+  <span class='ident'>VMIN</span>     <span class='op'>=</span> <span class='ident'>VMIN_</span>,
+<span class='comment'>//VSWTC    = VSWTC_,</span>
+  <span class='ident'>VSTART</span>   <span class='op'>=</span> <span class='ident'>VSTART_</span>,
+  <span class='ident'>VSTOP</span>    <span class='op'>=</span> <span class='ident'>VSTOP_</span>,
+  <span class='ident'>VSUSP</span>    <span class='op'>=</span> <span class='ident'>VSUSP_</span>,
+  <span class='ident'>VEOL</span>     <span class='op'>=</span> <span class='ident'>VEOL_</span>,
+  <span class='ident'>VREPRINT</span> <span class='op'>=</span> <span class='ident'>VREPRINT_</span>,
+  <span class='ident'>VDISCARD</span> <span class='op'>=</span> <span class='ident'>VDISCARD_</span>,
+  <span class='ident'>VWERASE</span>  <span class='op'>=</span> <span class='ident'>VWERASE_</span>,
+  <span class='ident'>VLNEXT</span>   <span class='op'>=</span> <span class='ident'>VLNEXT_</span>,
+  <span class='ident'>VEOL2</span>    <span class='op'>=</span> <span class='ident'>VEOL2_</span>,
 }
 
 <span class='macro'>bitflags</span><span class='macro'>!</span>{
-  <span class='ident'>flags</span> <span class='ident'>InputFlags</span>: <span class='ident'>c_ulong</span> {
+  <span class='ident'>flags</span> <span class='ident'>InputFlags</span>: <span class='ident'>Enum_iflags</span> {
     <span class='comment'>// Ignore BREAK condition on input.</span>
-    <span class='kw'>static</span> <span class='ident'>IGNBRK</span>  <span class='op'>=</span> <span class='number'>0x1</span>,
+    <span class='kw'>static</span> <span class='ident'>IGNBRK</span>  <span class='op'>=</span> <span class='ident'>IGNBRK_</span>,
     <span class='comment'>// If  IGNBRK is set, a BREAK is ignored. If it is not set but BRKINT is set, then a BREAK</span>
     <span class='comment'>// causes the input and output queues to be flushed, and if the terminal is the controlling</span>
     <span class='comment'>// terminal of a foreground process group, it will cause a SIGINT to be sent to this foreground</span>
     <span class='comment'>// process group. When neither IGNBRK nor BRKINT are set, a BREAK reads as a null byte (&#39;\0&#39;),</span>
     <span class='comment'>// except when PARMRK is set, in which case it reads as the sequence \377 \0 \0.</span>
-    <span class='kw'>static</span> <span class='ident'>BRKINT</span>  <span class='op'>=</span> <span class='number'>0x2</span>,
+    <span class='kw'>static</span> <span class='ident'>BRKINT</span>  <span class='op'>=</span> <span class='ident'>BRKINT_</span>,
     <span class='comment'>// Ignore framing errors and parity errors.</span>
-    <span class='kw'>static</span> <span class='ident'>IGNPAR</span>  <span class='op'>=</span> <span class='number'>0x4</span>,
+    <span class='kw'>static</span> <span class='ident'>IGNPAR</span>  <span class='op'>=</span> <span class='ident'>IGNPAR_</span>,
     <span class='comment'>// If IGNPAR is not set, prefix a character with a parity error or framing error with \377 \0.</span>
     <span class='comment'>// If neither IGNPAR nor PARMRK is set, read a character with a parity error or framing error</span>
     <span class='comment'>// as \0.</span>
-    <span class='kw'>static</span> <span class='ident'>PARMRK</span>  <span class='op'>=</span> <span class='number'>0x8</span>,
+    <span class='kw'>static</span> <span class='ident'>PARMRK</span>  <span class='op'>=</span> <span class='ident'>PARMRK_</span>,
     <span class='comment'>// Enable input parity checking.</span>
-    <span class='kw'>static</span> <span class='ident'>INPCK</span>   <span class='op'>=</span> <span class='number'>0x10</span>,
+    <span class='kw'>static</span> <span class='ident'>INPCK</span>   <span class='op'>=</span> <span class='ident'>INPCK_</span>,
     <span class='comment'>// Strip off eighth bit.</span>
-    <span class='kw'>static</span> <span class='ident'>ISTRIP</span>  <span class='op'>=</span> <span class='number'>0x20</span>,
+    <span class='kw'>static</span> <span class='ident'>ISTRIP</span>  <span class='op'>=</span> <span class='ident'>ISTRIP_</span>,
     <span class='comment'>// Translate NL to CR on input.</span>
-    <span class='kw'>static</span> <span class='ident'>INLCR</span>   <span class='op'>=</span> <span class='number'>0x40</span>,
+    <span class='kw'>static</span> <span class='ident'>INLCR</span>   <span class='op'>=</span> <span class='ident'>INLCR_</span>,
     <span class='comment'>// Ignore carriage return on input.</span>
-    <span class='kw'>static</span> <span class='ident'>IGNCR</span>   <span class='op'>=</span> <span class='number'>0x80</span>,
+    <span class='kw'>static</span> <span class='ident'>IGNCR</span>   <span class='op'>=</span> <span class='ident'>IGNCR_</span>,
     <span class='comment'>// Translate carriage return to newline on input (unless IGNCR is set).</span>
-    <span class='kw'>static</span> <span class='ident'>ICRNL</span>   <span class='op'>=</span> <span class='number'>0x100</span>,
+    <span class='kw'>static</span> <span class='ident'>ICRNL</span>   <span class='op'>=</span> <span class='ident'>ICRNL_</span>,
     <span class='comment'>// (not in POSIX) Map uppercase characters to lowercase on input.</span>
-    <span class='kw'>static</span> <span class='ident'>IUCLC</span>   <span class='op'>=</span> <span class='number'>0x200</span>,
+    <span class='kw'>static</span> <span class='ident'>IUCLC</span>   <span class='op'>=</span> <span class='ident'>IUCLC_</span>,
     <span class='comment'>// Enable XON/XOFF flow control on output.</span>
-    <span class='kw'>static</span> <span class='ident'>IXON</span>    <span class='op'>=</span> <span class='number'>0x400</span>,
+    <span class='kw'>static</span> <span class='ident'>IXON</span>    <span class='op'>=</span> <span class='ident'>IXON_</span>,
     <span class='comment'>// (XSI) Typing any character will restart stopped output.  (The default is to allow just the</span>
     <span class='comment'>// START character to restart output.)</span>
-    <span class='kw'>static</span> <span class='ident'>IXANY</span>   <span class='op'>=</span> <span class='number'>0x800</span>,
+    <span class='kw'>static</span> <span class='ident'>IXANY</span>   <span class='op'>=</span> <span class='ident'>IXANY_</span>,
     <span class='comment'>// Enable XON/XOFF flow control on input.</span>
-    <span class='kw'>static</span> <span class='ident'>IXOFF</span>   <span class='op'>=</span> <span class='number'>0x1000</span>,
+    <span class='kw'>static</span> <span class='ident'>IXOFF</span>   <span class='op'>=</span> <span class='ident'>IXOFF_</span>,
     <span class='comment'>// (not in POSIX) Ring bell when input queue is full.  Linux does not implement this bit, and</span>
     <span class='comment'>// acts as if it is always set.</span>
-    <span class='kw'>static</span> <span class='ident'>IMAXBEL</span> <span class='op'>=</span> <span class='number'>0x2000</span>,
+    <span class='kw'>static</span> <span class='ident'>IMAXBEL</span> <span class='op'>=</span> <span class='ident'>IMAXBEL_</span>,
     <span class='comment'>// (since Linux 2.6.4) (not in POSIX) Input is UTF8; this allows character-erase to be</span>
     <span class='comment'>// correctly performed in cooked mode.</span>
-    <span class='kw'>static</span> <span class='ident'>IUTF8</span>   <span class='op'>=</span> <span class='number'>0x4000</span>
+    <span class='kw'>static</span> <span class='ident'>IUTF8</span>   <span class='op'>=</span> <span class='ident'>IUTF8_</span>
   }
 }
 
@@ -842,52 +908,52 @@
 }
 
 <span class='macro'>bitflags</span><span class='macro'>!</span>{
-  <span class='ident'>flags</span> <span class='ident'>OutputFlags</span>: <span class='ident'>c_ulong</span> {
+  <span class='ident'>flags</span> <span class='ident'>OutputFlags</span>: <span class='ident'>Enum_oflags</span> {
     <span class='comment'>// Enable implementation-defined output processing.</span>
-    <span class='kw'>static</span> <span class='ident'>OPOST</span>  <span class='op'>=</span> <span class='number'>0x1</span>,
+    <span class='kw'>static</span> <span class='ident'>OPOST</span>  <span class='op'>=</span> <span class='ident'>OPOST_</span>,
     <span class='comment'>// (not in POSIX) Map lowercase characters to uppercase on output.</span>
-    <span class='kw'>static</span> <span class='ident'>OLCUC</span>  <span class='op'>=</span> <span class='number'>0x2</span>,
+    <span class='kw'>static</span> <span class='ident'>OLCUC</span>  <span class='op'>=</span> <span class='ident'>OLCUC_</span>,
     <span class='comment'>// (XSI) Map NL to CR-NL on output.</span>
-    <span class='kw'>static</span> <span class='ident'>ONLCR</span>  <span class='op'>=</span> <span class='number'>0x4</span>,
+    <span class='kw'>static</span> <span class='ident'>ONLCR</span>  <span class='op'>=</span> <span class='ident'>ONLCR_</span>,
     <span class='comment'>// Map CR to NL on output.</span>
-    <span class='kw'>static</span> <span class='ident'>OCRNL</span>  <span class='op'>=</span> <span class='number'>0x8</span>,
+    <span class='kw'>static</span> <span class='ident'>OCRNL</span>  <span class='op'>=</span> <span class='ident'>OCRNL_</span>,
     <span class='comment'>// Don&#39;t output CR at column 0.</span>
-    <span class='kw'>static</span> <span class='ident'>ONOCR</span>  <span class='op'>=</span> <span class='number'>0x10</span>,
+    <span class='kw'>static</span> <span class='ident'>ONOCR</span>  <span class='op'>=</span> <span class='ident'>ONOCR_</span>,
     <span class='comment'>// Don&#39;t output CR.</span>
-    <span class='kw'>static</span> <span class='ident'>ONLRET</span> <span class='op'>=</span> <span class='number'>0x20</span>,
+    <span class='kw'>static</span> <span class='ident'>ONLRET</span> <span class='op'>=</span> <span class='ident'>ONLRET_</span>,
 
     <span class='comment'>// Send fill characters for a delay, rather than using a timed delay.</span>
-    <span class='kw'>static</span> <span class='ident'>OFILL</span>  <span class='op'>=</span> <span class='number'>0x40</span>,
+    <span class='kw'>static</span> <span class='ident'>OFILL</span>  <span class='op'>=</span> <span class='ident'>OFILL_</span>,
     <span class='comment'>// Fill character is ASCII DEL (0177).  If unset, fill character is ASCII NUL (&#39;\0&#39;).  (Not implemented on Linux.)</span>
-    <span class='kw'>static</span> <span class='ident'>OFDEL</span>  <span class='op'>=</span> <span class='number'>0x80</span>,
+    <span class='kw'>static</span> <span class='ident'>OFDEL</span>  <span class='op'>=</span> <span class='ident'>OFDEL_</span>,
 
     <span class='comment'>// newline delay</span>
-    <span class='kw'>static</span> <span class='ident'>NL0</span>    <span class='op'>=</span> <span class='number'>0x0</span>,
-    <span class='kw'>static</span> <span class='ident'>NL1</span>    <span class='op'>=</span> <span class='number'>0x100</span>,
+    <span class='kw'>static</span> <span class='ident'>NL0</span>    <span class='op'>=</span> <span class='ident'>NL0_</span>,
+    <span class='kw'>static</span> <span class='ident'>NL1</span>    <span class='op'>=</span> <span class='ident'>NL1_</span>,
 
     <span class='comment'>// carriage return delay</span>
-    <span class='kw'>static</span> <span class='ident'>CR0</span>    <span class='op'>=</span> <span class='number'>0x0</span>,
-    <span class='kw'>static</span> <span class='ident'>CR1</span>    <span class='op'>=</span> <span class='number'>0x200</span>,
-    <span class='kw'>static</span> <span class='ident'>CR2</span>    <span class='op'>=</span> <span class='number'>0x400</span>,
-    <span class='kw'>static</span> <span class='ident'>CR3</span>    <span class='op'>=</span> <span class='number'>0x600</span>,
+    <span class='kw'>static</span> <span class='ident'>CR0</span>    <span class='op'>=</span> <span class='ident'>CR0_</span>,
+    <span class='kw'>static</span> <span class='ident'>CR1</span>    <span class='op'>=</span> <span class='ident'>CR1_</span>,
+    <span class='kw'>static</span> <span class='ident'>CR2</span>    <span class='op'>=</span> <span class='ident'>CR2_</span>,
+    <span class='kw'>static</span> <span class='ident'>CR3</span>    <span class='op'>=</span> <span class='ident'>CR3_</span>,
 
     <span class='comment'>// tab delay</span>
-    <span class='kw'>static</span> <span class='ident'>TAB0</span>   <span class='op'>=</span> <span class='number'>0x0</span>,
-    <span class='kw'>static</span> <span class='ident'>TAB1</span>   <span class='op'>=</span> <span class='number'>0x800</span>,
-    <span class='kw'>static</span> <span class='ident'>TAB2</span>   <span class='op'>=</span> <span class='number'>0x1000</span>,
-    <span class='kw'>static</span> <span class='ident'>TAB3</span>   <span class='op'>=</span> <span class='number'>0x1800</span>,
+    <span class='kw'>static</span> <span class='ident'>TAB0</span>   <span class='op'>=</span> <span class='ident'>TAB0_</span>,
+    <span class='kw'>static</span> <span class='ident'>TAB1</span>   <span class='op'>=</span> <span class='ident'>TAB1_</span>,
+    <span class='kw'>static</span> <span class='ident'>TAB2</span>   <span class='op'>=</span> <span class='ident'>TAB2_</span>,
+    <span class='kw'>static</span> <span class='ident'>TAB3</span>   <span class='op'>=</span> <span class='ident'>TAB3_</span>,
 
     <span class='comment'>// backspace delay</span>
-    <span class='kw'>static</span> <span class='ident'>BS0</span>    <span class='op'>=</span> <span class='number'>0x0</span>,
-    <span class='kw'>static</span> <span class='ident'>BS1</span>    <span class='op'>=</span> <span class='number'>0x2000</span>,
+    <span class='kw'>static</span> <span class='ident'>BS0</span>    <span class='op'>=</span> <span class='ident'>BS0_</span>,
+    <span class='kw'>static</span> <span class='ident'>BS1</span>    <span class='op'>=</span> <span class='ident'>BS1_</span>,
 
     <span class='comment'>// form feed delay</span>
-    <span class='kw'>static</span> <span class='ident'>FF0</span>    <span class='op'>=</span> <span class='number'>0x0</span>,
-    <span class='kw'>static</span> <span class='ident'>FF1</span>    <span class='op'>=</span> <span class='number'>0x8000</span>,
+    <span class='kw'>static</span> <span class='ident'>FF0</span>    <span class='op'>=</span> <span class='ident'>FF0_</span>,
+    <span class='kw'>static</span> <span class='ident'>FF1</span>    <span class='op'>=</span> <span class='ident'>FF1_</span>,
 
     <span class='comment'>// vertical tab delay</span>
-    <span class='kw'>static</span> <span class='ident'>VT0</span>    <span class='op'>=</span> <span class='number'>0x0</span>,
-    <span class='kw'>static</span> <span class='ident'>VT1</span>    <span class='op'>=</span> <span class='number'>0x4000</span>
+    <span class='kw'>static</span> <span class='ident'>VT0</span>    <span class='op'>=</span> <span class='ident'>VT0_</span>,
+    <span class='kw'>static</span> <span class='ident'>VT1</span>    <span class='op'>=</span> <span class='ident'>VT1_</span>
   }
 }
 
@@ -1006,41 +1072,41 @@
 
 
 <span class='macro'>bitflags</span><span class='macro'>!</span>{
-  <span class='ident'>flags</span> <span class='ident'>ControlFlags</span>: <span class='ident'>c_ulong</span> {
+  <span class='ident'>flags</span> <span class='ident'>ControlFlags</span>: <span class='ident'>Enum_cflags</span> {
     <span class='comment'>// character size</span>
-    <span class='kw'>static</span> <span class='ident'>CS5</span> <span class='op'>=</span> <span class='number'>0x0</span>,
-    <span class='kw'>static</span> <span class='ident'>CS6</span> <span class='op'>=</span> <span class='number'>0x10</span>,
-    <span class='kw'>static</span> <span class='ident'>CS7</span> <span class='op'>=</span> <span class='number'>0x20</span>,
-    <span class='kw'>static</span> <span class='ident'>CS8</span> <span class='op'>=</span> <span class='number'>0x30</span>,
+    <span class='kw'>static</span> <span class='ident'>CS5</span> <span class='op'>=</span> <span class='ident'>CS5_</span>,
+    <span class='kw'>static</span> <span class='ident'>CS6</span> <span class='op'>=</span> <span class='ident'>CS6_</span>,
+    <span class='kw'>static</span> <span class='ident'>CS7</span> <span class='op'>=</span> <span class='ident'>CS7_</span>,
+    <span class='kw'>static</span> <span class='ident'>CS8</span> <span class='op'>=</span> <span class='ident'>CS8_</span>,
 
     <span class='comment'>// Set two stop bits, rather than one.</span>
-    <span class='kw'>static</span> <span class='ident'>CSTOPB</span> <span class='op'>=</span> <span class='number'>0x40</span>,
+    <span class='kw'>static</span> <span class='ident'>CSTOPB</span> <span class='op'>=</span> <span class='ident'>CSTOPB_</span>,
     <span class='comment'>// Enable receiver.</span>
-    <span class='kw'>static</span> <span class='ident'>CREAD</span> <span class='op'>=</span> <span class='number'>0x80</span>,
+    <span class='kw'>static</span> <span class='ident'>CREAD</span> <span class='op'>=</span> <span class='ident'>CREAD_</span>,
     <span class='comment'>// Enable parity generation on output and parity checking for input.</span>
-    <span class='kw'>static</span> <span class='ident'>PARENB</span> <span class='op'>=</span> <span class='number'>0x100</span>,
+    <span class='kw'>static</span> <span class='ident'>PARENB</span> <span class='op'>=</span> <span class='ident'>PARENB_</span>,
     <span class='comment'>// If set, then parity for input and output is odd; otherwise even parity is used.</span>
-    <span class='kw'>static</span> <span class='ident'>PARODD</span> <span class='op'>=</span> <span class='number'>0x200</span>,
+    <span class='kw'>static</span> <span class='ident'>PARODD</span> <span class='op'>=</span> <span class='ident'>PARODD_</span>,
     <span class='comment'>// Lower modem control lines after last process closes the device (hang up).</span>
-    <span class='kw'>static</span> <span class='ident'>HUPCL</span> <span class='op'>=</span> <span class='number'>0x400</span>,
+    <span class='kw'>static</span> <span class='ident'>HUPCL</span> <span class='op'>=</span> <span class='ident'>HUPCL_</span>,
     <span class='comment'>// Ignore modem control lines.</span>
-    <span class='kw'>static</span> <span class='ident'>CLOCAL</span> <span class='op'>=</span> <span class='number'>0x800</span>,
+    <span class='kw'>static</span> <span class='ident'>CLOCAL</span> <span class='op'>=</span> <span class='ident'>CLOCAL_</span>,
 
     <span class='comment'>// baud</span>
-    <span class='kw'>static</span> <span class='ident'>CBAUD</span> <span class='op'>=</span> <span class='number'>0x100f</span>,
+    <span class='kw'>static</span> <span class='ident'>CBAUD</span> <span class='op'>=</span> <span class='ident'>CBAUD_</span>,
     <span class='comment'>// extended baud</span>
-    <span class='kw'>static</span> <span class='ident'>CBAUDEX</span> <span class='op'>=</span> <span class='number'>0x1000</span>,
+    <span class='kw'>static</span> <span class='ident'>CBAUDEX</span> <span class='op'>=</span> <span class='ident'>CBAUDEX_</span>,
 
     <span class='comment'>// (not  in  POSIX) Mask for input speeds.  The values for the CIBAUD bits are the same as the</span>
     <span class='comment'>// values for the CBAUD bits, shifted left IBSHIFT bits. (Not implemented on Linux.)</span>
-    <span class='kw'>static</span> <span class='ident'>CIBAUD</span> <span class='op'>=</span> <span class='number'>0x100f0000</span>,
+    <span class='kw'>static</span> <span class='ident'>CIBAUD</span> <span class='op'>=</span> <span class='ident'>CIBAUD_</span>,
 
     <span class='comment'>// (not in POSIX) Use &quot;stick&quot; (mark/space) parity (supported on certain serial devices): if</span>
     <span class='comment'>// PARODD is set, the parity bit is always 1; if PARODD is not set, then the parity  bit  is</span>
     <span class='comment'>// always  0.</span>
-    <span class='kw'>static</span> <span class='ident'>CMSPAR</span> <span class='op'>=</span> <span class='number'>0x40000000</span>,
+    <span class='kw'>static</span> <span class='ident'>CMSPAR</span> <span class='op'>=</span> <span class='ident'>CMSPAR_</span>,
     <span class='comment'>// (not in POSIX) Enable RTS/CTS (hardware) flow control.</span>
-    <span class='kw'>static</span> <span class='ident'>CRTSCTS</span> <span class='op'>=</span> <span class='number'>0x80000000</span>
+    <span class='kw'>static</span> <span class='ident'>CRTSCTS</span> <span class='op'>=</span> <span class='ident'>CRTSCTS_</span>
   }
 }
 
@@ -1125,53 +1191,53 @@
 }
 
 <span class='macro'>bitflags</span><span class='macro'>!</span>{
-  <span class='ident'>flags</span> <span class='ident'>LocalFlags</span>: <span class='ident'>c_ulong</span> {
+  <span class='ident'>flags</span> <span class='ident'>LocalFlags</span>: <span class='ident'>Enum_lflags</span> {
     <span class='comment'>// When any of the characters INTR, QUIT, SUSP, or DSUSP are received, generate the</span>
     <span class='comment'>// corresponding signal.</span>
-    <span class='kw'>static</span> <span class='ident'>ISIG</span> <span class='op'>=</span> <span class='number'>0x1</span>,
+    <span class='kw'>static</span> <span class='ident'>ISIG</span> <span class='op'>=</span> <span class='ident'>ISIG_</span>,
     <span class='comment'>// Enable canonical mode</span>
-    <span class='kw'>static</span> <span class='ident'>ICANON</span> <span class='op'>=</span> <span class='number'>0x2</span>,
+    <span class='kw'>static</span> <span class='ident'>ICANON</span> <span class='op'>=</span> <span class='ident'>ICANON_</span>,
     <span class='comment'>// (not  in  POSIX; not supported under Linux) If ICANON is also set, terminal is uppercase</span>
     <span class='comment'>// only.  Input is converted to lowercase, except for characters preceded by \.  On output,</span>
     <span class='comment'>// uppercase characters are preceded by \ and lowercase characters are converted to uppercase</span>
-    <span class='kw'>static</span> <span class='ident'>XCASE</span> <span class='op'>=</span> <span class='number'>0x4</span>,
+    <span class='kw'>static</span> <span class='ident'>XCASE</span> <span class='op'>=</span> <span class='ident'>XCASE_</span>,
     <span class='comment'>// Echo input characters.</span>
-    <span class='kw'>static</span> <span class='ident'>ECHO</span> <span class='op'>=</span> <span class='number'>0x8</span>,
+    <span class='kw'>static</span> <span class='ident'>ECHO</span> <span class='op'>=</span> <span class='ident'>ECHO_</span>,
     <span class='comment'>// If ICANON is also set, the ERASE character erases the preceding input character, and WERASE</span>
     <span class='comment'>// erases the preceding word.</span>
-    <span class='kw'>static</span> <span class='ident'>ECHOE</span> <span class='op'>=</span> <span class='number'>0x10</span>,
+    <span class='kw'>static</span> <span class='ident'>ECHOE</span> <span class='op'>=</span> <span class='ident'>ECHOE_</span>,
     <span class='comment'>// If ICANON is also set, the KILL character erases the current line.</span>
-    <span class='kw'>static</span> <span class='ident'>ECHOK</span> <span class='op'>=</span> <span class='number'>0x20</span>,
+    <span class='kw'>static</span> <span class='ident'>ECHOK</span> <span class='op'>=</span> <span class='ident'>ECHOK_</span>,
     <span class='comment'>// If ICANON is also set, echo the NL character even if ECHO is not set.</span>
-    <span class='kw'>static</span> <span class='ident'>ECHONL</span> <span class='op'>=</span> <span class='number'>0x40</span>,
+    <span class='kw'>static</span> <span class='ident'>ECHONL</span> <span class='op'>=</span> <span class='ident'>ECHONL_</span>,
     <span class='comment'>// Disable flushing the input and output queues when generating signals for the INT, QUIT, and</span>
     <span class='comment'>// SUSP characters.</span>
-    <span class='kw'>static</span> <span class='ident'>NOFLSH</span> <span class='op'>=</span> <span class='number'>0x80</span>,
+    <span class='kw'>static</span> <span class='ident'>NOFLSH</span> <span class='op'>=</span> <span class='ident'>NOFLSH_</span>,
     <span class='comment'>// Send the SIGTTOU signal to the process group of a background process which tries to write to</span>
     <span class='comment'>// its controlling terminal.</span>
-    <span class='kw'>static</span> <span class='ident'>TOSTOP</span> <span class='op'>=</span> <span class='number'>0x100</span>,
+    <span class='kw'>static</span> <span class='ident'>TOSTOP</span> <span class='op'>=</span> <span class='ident'>TOSTOP_</span>,
     <span class='comment'>// (not in POSIX) If ECHO is also set, terminal special characters other than TAB, NL, START,</span>
     <span class='comment'>// and STOP are echoed as ^X, where X is the character with ASCII code 0x40 greater than the</span>
     <span class='comment'>// special character. For example, character 0x08 (BS) is echoed as ^H.</span>
-    <span class='kw'>static</span> <span class='ident'>ECHOCTL</span> <span class='op'>=</span> <span class='number'>0x200</span>,
+    <span class='kw'>static</span> <span class='ident'>ECHOCTL</span> <span class='op'>=</span> <span class='ident'>ECHOCTL_</span>,
     <span class='comment'>// (not in POSIX) If ICANON and ECHO are also set, characters are printed as they are being</span>
     <span class='comment'>// erased.</span>
-    <span class='kw'>static</span> <span class='ident'>ECHOPRT</span> <span class='op'>=</span> <span class='number'>0x400</span>,
+    <span class='kw'>static</span> <span class='ident'>ECHOPRT</span> <span class='op'>=</span> <span class='ident'>ECHOPRT_</span>,
     <span class='comment'>// (not in POSIX) If ICANON is also set, KILL is echoed by erasing each character on the line,</span>
     <span class='comment'>// as specified by ECHOE and ECHOPRT.</span>
-    <span class='kw'>static</span> <span class='ident'>ECHOKE</span> <span class='op'>=</span> <span class='number'>0x800</span>,
+    <span class='kw'>static</span> <span class='ident'>ECHOKE</span> <span class='op'>=</span> <span class='ident'>ECHOKE_</span>,
     <span class='comment'>// (not in POSIX; not supported under Linux) Output is being flushed.  This flag is toggled by</span>
     <span class='comment'>// typing the DISCARD character.</span>
-    <span class='kw'>static</span> <span class='ident'>FLUSHO</span> <span class='op'>=</span> <span class='number'>0x1000</span>,
+    <span class='kw'>static</span> <span class='ident'>FLUSHO</span> <span class='op'>=</span> <span class='ident'>FLUSHO_</span>,
     <span class='comment'>// (not in POSIX; not supported under Linux) All characters in the input queue are reprinted</span>
     <span class='comment'>// when the next character is read.  (bash(1) handles typeahead this way.)</span>
-    <span class='kw'>static</span> <span class='ident'>PENDIN</span> <span class='op'>=</span> <span class='number'>0x4000</span>,
+    <span class='kw'>static</span> <span class='ident'>PENDIN</span> <span class='op'>=</span> <span class='ident'>PENDIN_</span>,
     <span class='comment'>// Enable  implementation-defined  input  processing.   This  flag, as well as ICANON must be</span>
     <span class='comment'>// enabled for the special characters EOL2, LNEXT, REPRINT, WERASE to be interpreted, and for</span>
     <span class='comment'>// the IUCLC flag to be effective.</span>
-    <span class='kw'>static</span> <span class='ident'>IEXTEN</span> <span class='op'>=</span> <span class='number'>0x8000</span>
-    <span class='comment'>// wtf?</span>
-    <span class='comment'>/* static EXTPROC = 0x10000, */</span>
+    <span class='kw'>static</span> <span class='ident'>IEXTEN</span> <span class='op'>=</span> <span class='ident'>IEXTEN_</span>
+
+    <span class='comment'>/* static EXTPROC = EXTPROC_, */</span>
   }
 }
 
@@ -1262,46 +1328,46 @@
 }
 
 <span class='attribute'>#[<span class='ident'>deriving</span>(<span class='ident'>Show</span>)]</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>uint</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>u32</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>Speed</span> {
-  <span class='ident'>B0</span>       <span class='op'>=</span> <span class='number'>0x0</span>,
-  <span class='ident'>B50</span>      <span class='op'>=</span> <span class='number'>0x1</span>,
-  <span class='ident'>B75</span>      <span class='op'>=</span> <span class='number'>0x2</span>,
-  <span class='ident'>B110</span>     <span class='op'>=</span> <span class='number'>0x3</span>,
-  <span class='ident'>B134</span>     <span class='op'>=</span> <span class='number'>0x4</span>,
-  <span class='ident'>B150</span>     <span class='op'>=</span> <span class='number'>0x5</span>,
-  <span class='ident'>B200</span>     <span class='op'>=</span> <span class='number'>0x6</span>,
-  <span class='ident'>B300</span>     <span class='op'>=</span> <span class='number'>0x7</span>,
-  <span class='ident'>B600</span>     <span class='op'>=</span> <span class='number'>0x8</span>,
-  <span class='ident'>B1200</span>    <span class='op'>=</span> <span class='number'>0x9</span>,
-  <span class='ident'>B1800</span>    <span class='op'>=</span> <span class='number'>0xa</span>,
-  <span class='ident'>B2400</span>    <span class='op'>=</span> <span class='number'>0xb</span>,
-  <span class='ident'>B4800</span>    <span class='op'>=</span> <span class='number'>0xc</span>,
-  <span class='ident'>B9600</span>    <span class='op'>=</span> <span class='number'>0xd</span>,
-  <span class='ident'>B19200</span>   <span class='op'>=</span> <span class='number'>0xe</span>,
-  <span class='ident'>B38400</span>   <span class='op'>=</span> <span class='number'>0xf</span>,
-  <span class='ident'>B57600</span>   <span class='op'>=</span> <span class='number'>0x1001</span>,
-  <span class='ident'>B115200</span>  <span class='op'>=</span> <span class='number'>0x1002</span>,
-  <span class='ident'>B230400</span>  <span class='op'>=</span> <span class='number'>0x1003</span>,
-  <span class='ident'>B460800</span>  <span class='op'>=</span> <span class='number'>0x1004</span>,
-  <span class='ident'>B500000</span>  <span class='op'>=</span> <span class='number'>0x1005</span>,
-  <span class='ident'>B576000</span>  <span class='op'>=</span> <span class='number'>0x1006</span>,
-  <span class='ident'>B921600</span>  <span class='op'>=</span> <span class='number'>0x1007</span>,
-  <span class='ident'>B1000000</span> <span class='op'>=</span> <span class='number'>0x1008</span>,
-  <span class='ident'>B1152000</span> <span class='op'>=</span> <span class='number'>0x1009</span>,
-  <span class='ident'>B1500000</span> <span class='op'>=</span> <span class='number'>0x100a</span>,
-  <span class='ident'>B2000000</span> <span class='op'>=</span> <span class='number'>0x100b</span>,
-  <span class='ident'>B2500000</span> <span class='op'>=</span> <span class='number'>0x100c</span>,
-  <span class='ident'>B3000000</span> <span class='op'>=</span> <span class='number'>0x100d</span>,
-  <span class='ident'>B3500000</span> <span class='op'>=</span> <span class='number'>0x100e</span>,
-  <span class='ident'>B4000000</span> <span class='op'>=</span> <span class='number'>0x100f</span>,
+  <span class='ident'>B0</span>       <span class='op'>=</span> <span class='ident'>B0_</span>,
+  <span class='ident'>B50</span>      <span class='op'>=</span> <span class='ident'>B50_</span>,
+  <span class='ident'>B75</span>      <span class='op'>=</span> <span class='ident'>B75_</span>,
+  <span class='ident'>B110</span>     <span class='op'>=</span> <span class='ident'>B110_</span>,
+  <span class='ident'>B134</span>     <span class='op'>=</span> <span class='ident'>B134_</span>,
+  <span class='ident'>B150</span>     <span class='op'>=</span> <span class='ident'>B150_</span>,
+  <span class='ident'>B200</span>     <span class='op'>=</span> <span class='ident'>B200_</span>,
+  <span class='ident'>B300</span>     <span class='op'>=</span> <span class='ident'>B300_</span>,
+  <span class='ident'>B600</span>     <span class='op'>=</span> <span class='ident'>B600_</span>,
+  <span class='ident'>B1200</span>    <span class='op'>=</span> <span class='ident'>B1200_</span>,
+  <span class='ident'>B1800</span>    <span class='op'>=</span> <span class='ident'>B1800_</span>,
+  <span class='ident'>B2400</span>    <span class='op'>=</span> <span class='ident'>B2400_</span>,
+  <span class='ident'>B4800</span>    <span class='op'>=</span> <span class='ident'>B4800_</span>,
+  <span class='ident'>B9600</span>    <span class='op'>=</span> <span class='ident'>B9600_</span>,
+  <span class='ident'>B19200</span>   <span class='op'>=</span> <span class='ident'>B19200_</span>,
+  <span class='ident'>B38400</span>   <span class='op'>=</span> <span class='ident'>B38400_</span>,
+  <span class='ident'>B57600</span>   <span class='op'>=</span> <span class='ident'>B57600_</span>,
+  <span class='ident'>B115200</span>  <span class='op'>=</span> <span class='ident'>B115200_</span>,
+  <span class='ident'>B230400</span>  <span class='op'>=</span> <span class='ident'>B230400_</span>,
+  <span class='ident'>B460800</span>  <span class='op'>=</span> <span class='ident'>B460800_</span>,
+  <span class='ident'>B500000</span>  <span class='op'>=</span> <span class='ident'>B500000_</span>,
+  <span class='ident'>B576000</span>  <span class='op'>=</span> <span class='ident'>B576000_</span>,
+  <span class='ident'>B921600</span>  <span class='op'>=</span> <span class='ident'>B921600_</span>,
+  <span class='ident'>B1000000</span> <span class='op'>=</span> <span class='ident'>B1000000_</span>,
+  <span class='ident'>B1152000</span> <span class='op'>=</span> <span class='ident'>B1152000_</span>,
+  <span class='ident'>B1500000</span> <span class='op'>=</span> <span class='ident'>B1500000_</span>,
+  <span class='ident'>B2000000</span> <span class='op'>=</span> <span class='ident'>B2000000_</span>,
+  <span class='ident'>B2500000</span> <span class='op'>=</span> <span class='ident'>B2500000_</span>,
+  <span class='ident'>B3000000</span> <span class='op'>=</span> <span class='ident'>B3000000_</span>,
+  <span class='ident'>B3500000</span> <span class='op'>=</span> <span class='ident'>B3500000_</span>,
+  <span class='ident'>B4000000</span> <span class='op'>=</span> <span class='ident'>B4000000_</span>,
 }
 
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
+<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>u32</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>When</span> {
-  <span class='ident'>TCSANOW</span> <span class='op'>=</span> <span class='number'>0x0</span>,
-  <span class='ident'>TCSADRAIN</span> <span class='op'>=</span> <span class='number'>0x1</span>,
-  <span class='ident'>TCSAFLUSH</span> <span class='op'>=</span> <span class='number'>0x2</span>,
+  <span class='ident'>TCSANOW</span>   <span class='op'>=</span> <span class='ident'>TCSANOW_</span>,
+  <span class='ident'>TCSADRAIN</span> <span class='op'>=</span> <span class='ident'>TCSADRAIN_</span>,
+  <span class='ident'>TCSAFLUSH</span> <span class='op'>=</span> <span class='ident'>TCSAFLUSH_</span>,
 }
 </pre>
 </section>
