@@ -14,8 +14,8 @@ mod bindings;
 
 pub trait Termio {
   fn tcgetattr(&self) -> IoResult<Termios>;
-  fn tcsetattr(&self, when: When, termios: Termios) -> IoResult<()>;
-  fn tcsetattr_auto(&self, termios: Termios) -> IoResult<TermioHandle>;
+  fn tcsetattr(&self, when: When, termios: &Termios) -> IoResult<()>;
+  fn tcsetattr_auto(&self, termios: &Termios) -> IoResult<TermioHandle>;
 }
 
 pub struct TermioHandle<'a>(&'a Termio, Termios);
@@ -32,19 +32,19 @@ impl Termio for FileDesc {
     Ok(termios)
   }
 
-  fn tcsetattr(&self, when: When, termios: Termios) -> IoResult<()> {
+  fn tcsetattr(&self, when: When, termios: &Termios) -> IoResult<()> {
    let fd = self.fd();
 
-   if unsafe { bindings::tcsetattr(fd, when as i32, transmute(&termios)) } < 0 {
+   if unsafe { bindings::tcsetattr(fd, when as i32, transmute(termios)) } < 0 {
      return Err(IoError::last_error());
    }
 
    Ok(())
   }
 
-  fn tcsetattr_auto(&self, termios: Termios) -> IoResult<TermioHandle> {
+  fn tcsetattr_auto(&self, termios: &Termios) -> IoResult<TermioHandle> {
     try!(self.tcsetattr(TCSANOW, termios));
-    Ok(TermioHandle(self, termios))
+    Ok(TermioHandle(self, *termios))
   }
 }
 
@@ -52,6 +52,6 @@ impl Termio for FileDesc {
 impl<'a> Drop for TermioHandle<'a> {
   fn drop(&mut self) {
     let &TermioHandle(termio, termios) = self;
-    termio.tcsetattr(TCSANOW, termios).unwrap();
+    termio.tcsetattr(TCSANOW, &termios).unwrap();
   }
 }
