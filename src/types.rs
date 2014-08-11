@@ -1,82 +1,115 @@
 use std::fmt;
-use libc::c_ulong;
+use bindings::*;
 
-#[deriving(Show)]
 pub struct Termios {
   pub input_flags: InputFlags,
   pub output_flags: OutputFlags,
   pub control_flags: ControlFlags,
   pub local_flags: LocalFlags,
   _line: u8, // line discipline (unused on POSIX)
-  pub control_chars: ControlCharacters,
+  pub control_chars: [u8, ..NCCS_],
   pub input_speed: Speed,
   pub output_speed: Speed,
 }
 
+impl fmt::Show for Termios {
+  #[allow(unused_must_use, dead_assignment)]
+  fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
+    write!(fmt, "Termios {{ ");
+    write!(fmt, "input_flags: {}, ", self.input_flags);
+    write!(fmt, "output_flags: {}, ", self.output_flags);
+    write!(fmt, "control_flags: {}, ", self.control_flags);
+    write!(fmt, "local_flags: {}", self.local_flags);
+
+    write!(fmt, "control_chars: {{ ");
+    let ref c = self.control_chars;
+    write!(fmt, "VINTR: {}, ", c[VINTR as uint]);
+    write!(fmt, "VQUIT: {}, ", c[VQUIT as uint]);
+    write!(fmt, "VERASE: {}, ", c[VERASE as uint]);
+    write!(fmt, "VKILL: {}, ", c[VKILL as uint]);
+    write!(fmt, "VEOF: {}, ", c[VEOF as uint]);
+    write!(fmt, "VTIME: {}, ", c[VTIME as uint]);
+    write!(fmt, "VMIN: {}, ", c[VMIN as uint]);
+    write!(fmt, "VSTART: {}, ", c[VSTART as uint]);
+    write!(fmt, "VSTOP: {}, ", c[VSTOP as uint]);
+    write!(fmt, "VSUSP: {}, ", c[VSUSP as uint]);
+    write!(fmt, "VEOL: {}, ", c[VEOL as uint]);
+    write!(fmt, "VREPRINT: {}, ", c[VREPRINT as uint]);
+    write!(fmt, "VDISCARD: {}, ", c[VDISCARD as uint]);
+    write!(fmt, "VWERASE: {}, ", c[VWERASE as uint]);
+    write!(fmt, "VLNEXT: {}, ", c[VLNEXT as uint]);
+    write!(fmt, "VEOL2: {} }}", c[VEOL2 as uint]);
+
+    write!(fmt, " }}");
+
+    Ok(())
+  }
+}
+
 #[deriving(Show)]
-#[packed]
 #[allow(uppercase_variables)]
-pub struct ControlCharacters {
-  pub VINTR    : u8,
-  pub VQUIT    : u8,
-  pub VERASE   : u8,
-  pub VKILL    : u8,
-  pub VEOF     : u8,
-  pub VTIME    : u8,
-  pub VMIN     : u8,
-  pub VSWTC    : u8,
-  pub VSTART   : u8,
-  pub VSTOP    : u8,
-  pub VSUSP    : u8,
-  pub VEOL     : u8,
-  pub VREPRINT : u8,
-  pub VDISCARD : u8,
-  pub VWERASE  : u8,
-  pub VLNEXT   : u8,
-  pub VEOL2    : u8,
+#[repr(u32)]
+pub enum ControlCharacter {
+  VINTR    = VINTR_,
+  VQUIT    = VQUIT_,
+  VERASE   = VERASE_,
+  VKILL    = VKILL_,
+  VEOF     = VEOF_,
+  VTIME    = VTIME_,
+  VMIN     = VMIN_,
+//VSWTC    = VSWTC_,
+  VSTART   = VSTART_,
+  VSTOP    = VSTOP_,
+  VSUSP    = VSUSP_,
+  VEOL     = VEOL_,
+  VREPRINT = VREPRINT_,
+  VDISCARD = VDISCARD_,
+  VWERASE  = VWERASE_,
+  VLNEXT   = VLNEXT_,
+  VEOL2    = VEOL2_,
 }
 
 bitflags!{
-  flags InputFlags: c_ulong {
+  flags InputFlags: Enum_iflags {
     // Ignore BREAK condition on input.
-    static IGNBRK  = 0x1,
+    static IGNBRK  = IGNBRK_,
     // If  IGNBRK is set, a BREAK is ignored. If it is not set but BRKINT is set, then a BREAK
     // causes the input and output queues to be flushed, and if the terminal is the controlling
     // terminal of a foreground process group, it will cause a SIGINT to be sent to this foreground
     // process group. When neither IGNBRK nor BRKINT are set, a BREAK reads as a null byte ('\0'),
     // except when PARMRK is set, in which case it reads as the sequence \377 \0 \0.
-    static BRKINT  = 0x2,
+    static BRKINT  = BRKINT_,
     // Ignore framing errors and parity errors.
-    static IGNPAR  = 0x4,
+    static IGNPAR  = IGNPAR_,
     // If IGNPAR is not set, prefix a character with a parity error or framing error with \377 \0.
     // If neither IGNPAR nor PARMRK is set, read a character with a parity error or framing error
     // as \0.
-    static PARMRK  = 0x8,
+    static PARMRK  = PARMRK_,
     // Enable input parity checking.
-    static INPCK   = 0x10,
+    static INPCK   = INPCK_,
     // Strip off eighth bit.
-    static ISTRIP  = 0x20,
+    static ISTRIP  = ISTRIP_,
     // Translate NL to CR on input.
-    static INLCR   = 0x40,
+    static INLCR   = INLCR_,
     // Ignore carriage return on input.
-    static IGNCR   = 0x80,
+    static IGNCR   = IGNCR_,
     // Translate carriage return to newline on input (unless IGNCR is set).
-    static ICRNL   = 0x100,
+    static ICRNL   = ICRNL_,
     // (not in POSIX) Map uppercase characters to lowercase on input.
-    static IUCLC   = 0x200,
+    static IUCLC   = IUCLC_,
     // Enable XON/XOFF flow control on output.
-    static IXON    = 0x400,
+    static IXON    = IXON_,
     // (XSI) Typing any character will restart stopped output.  (The default is to allow just the
     // START character to restart output.)
-    static IXANY   = 0x800,
+    static IXANY   = IXANY_,
     // Enable XON/XOFF flow control on input.
-    static IXOFF   = 0x1000,
+    static IXOFF   = IXOFF_,
     // (not in POSIX) Ring bell when input queue is full.  Linux does not implement this bit, and
     // acts as if it is always set.
-    static IMAXBEL = 0x2000,
+    static IMAXBEL = IMAXBEL_,
     // (since Linux 2.6.4) (not in POSIX) Input is UTF8; this allows character-erase to be
     // correctly performed in cooked mode.
-    static IUTF8   = 0x4000
+    static IUTF8   = IUTF8_
   }
 }
 
@@ -168,52 +201,52 @@ impl fmt::Show for InputFlags {
 }
 
 bitflags!{
-  flags OutputFlags: c_ulong {
+  flags OutputFlags: Enum_oflags {
     // Enable implementation-defined output processing.
-    static OPOST  = 0x1,
+    static OPOST  = OPOST_,
     // (not in POSIX) Map lowercase characters to uppercase on output.
-    static OLCUC  = 0x2,
+    static OLCUC  = OLCUC_,
     // (XSI) Map NL to CR-NL on output.
-    static ONLCR  = 0x4,
+    static ONLCR  = ONLCR_,
     // Map CR to NL on output.
-    static OCRNL  = 0x8,
+    static OCRNL  = OCRNL_,
     // Don't output CR at column 0.
-    static ONOCR  = 0x10,
+    static ONOCR  = ONOCR_,
     // Don't output CR.
-    static ONLRET = 0x20,
+    static ONLRET = ONLRET_,
 
     // Send fill characters for a delay, rather than using a timed delay.
-    static OFILL  = 0x40,
+    static OFILL  = OFILL_,
     // Fill character is ASCII DEL (0177).  If unset, fill character is ASCII NUL ('\0').  (Not implemented on Linux.)
-    static OFDEL  = 0x80,
+    static OFDEL  = OFDEL_,
 
     // newline delay
-    static NL0    = 0x0,
-    static NL1    = 0x100,
+    static NL0    = NL0_,
+    static NL1    = NL1_,
 
     // carriage return delay
-    static CR0    = 0x0,
-    static CR1    = 0x200,
-    static CR2    = 0x400,
-    static CR3    = 0x600,
+    static CR0    = CR0_,
+    static CR1    = CR1_,
+    static CR2    = CR2_,
+    static CR3    = CR3_,
 
     // tab delay
-    static TAB0   = 0x0,
-    static TAB1   = 0x800,
-    static TAB2   = 0x1000,
-    static TAB3   = 0x1800,
+    static TAB0   = TAB0_,
+    static TAB1   = TAB1_,
+    static TAB2   = TAB2_,
+    static TAB3   = TAB3_,
 
     // backspace delay
-    static BS0    = 0x0,
-    static BS1    = 0x2000,
+    static BS0    = BS0_,
+    static BS1    = BS1_,
 
     // form feed delay
-    static FF0    = 0x0,
-    static FF1    = 0x8000,
+    static FF0    = FF0_,
+    static FF1    = FF1_,
 
     // vertical tab delay
-    static VT0    = 0x0,
-    static VT1    = 0x4000
+    static VT0    = VT0_,
+    static VT1    = VT1_
   }
 }
 
@@ -332,41 +365,41 @@ impl fmt::Show for OutputFlags {
 
 
 bitflags!{
-  flags ControlFlags: c_ulong {
+  flags ControlFlags: Enum_cflags {
     // character size
-    static CS5 = 0x0,
-    static CS6 = 0x10,
-    static CS7 = 0x20,
-    static CS8 = 0x30,
+    static CS5 = CS5_,
+    static CS6 = CS6_,
+    static CS7 = CS7_,
+    static CS8 = CS8_,
 
     // Set two stop bits, rather than one.
-    static CSTOPB = 0x40,
+    static CSTOPB = CSTOPB_,
     // Enable receiver.
-    static CREAD = 0x80,
+    static CREAD = CREAD_,
     // Enable parity generation on output and parity checking for input.
-    static PARENB = 0x100,
+    static PARENB = PARENB_,
     // If set, then parity for input and output is odd; otherwise even parity is used.
-    static PARODD = 0x200,
+    static PARODD = PARODD_,
     // Lower modem control lines after last process closes the device (hang up).
-    static HUPCL = 0x400,
+    static HUPCL = HUPCL_,
     // Ignore modem control lines.
-    static CLOCAL = 0x800,
+    static CLOCAL = CLOCAL_,
 
     // baud
-    static CBAUD = 0x100f,
+    static CBAUD = CBAUD_,
     // extended baud
-    static CBAUDEX = 0x1000,
+    static CBAUDEX = CBAUDEX_,
 
     // (not  in  POSIX) Mask for input speeds.  The values for the CIBAUD bits are the same as the
     // values for the CBAUD bits, shifted left IBSHIFT bits. (Not implemented on Linux.)
-    static CIBAUD = 0x100f0000,
+    static CIBAUD = CIBAUD_,
 
     // (not in POSIX) Use "stick" (mark/space) parity (supported on certain serial devices): if
     // PARODD is set, the parity bit is always 1; if PARODD is not set, then the parity  bit  is
     // always  0.
-    static CMSPAR = 0x40000000,
+    static CMSPAR = CMSPAR_,
     // (not in POSIX) Enable RTS/CTS (hardware) flow control.
-    static CRTSCTS = 0x80000000
+    static CRTSCTS = CRTSCTS_
   }
 }
 
@@ -451,53 +484,53 @@ impl fmt::Show for ControlFlags {
 }
 
 bitflags!{
-  flags LocalFlags: c_ulong {
+  flags LocalFlags: Enum_lflags {
     // When any of the characters INTR, QUIT, SUSP, or DSUSP are received, generate the
     // corresponding signal.
-    static ISIG = 0x1,
+    static ISIG = ISIG_,
     // Enable canonical mode
-    static ICANON = 0x2,
+    static ICANON = ICANON_,
     // (not  in  POSIX; not supported under Linux) If ICANON is also set, terminal is uppercase
     // only.  Input is converted to lowercase, except for characters preceded by \.  On output,
     // uppercase characters are preceded by \ and lowercase characters are converted to uppercase
-    static XCASE = 0x4,
+    static XCASE = XCASE_,
     // Echo input characters.
-    static ECHO = 0x8,
+    static ECHO = ECHO_,
     // If ICANON is also set, the ERASE character erases the preceding input character, and WERASE
     // erases the preceding word.
-    static ECHOE = 0x10,
+    static ECHOE = ECHOE_,
     // If ICANON is also set, the KILL character erases the current line.
-    static ECHOK = 0x20,
+    static ECHOK = ECHOK_,
     // If ICANON is also set, echo the NL character even if ECHO is not set.
-    static ECHONL = 0x40,
+    static ECHONL = ECHONL_,
     // Disable flushing the input and output queues when generating signals for the INT, QUIT, and
     // SUSP characters.
-    static NOFLSH = 0x80,
+    static NOFLSH = NOFLSH_,
     // Send the SIGTTOU signal to the process group of a background process which tries to write to
     // its controlling terminal.
-    static TOSTOP = 0x100,
+    static TOSTOP = TOSTOP_,
     // (not in POSIX) If ECHO is also set, terminal special characters other than TAB, NL, START,
     // and STOP are echoed as ^X, where X is the character with ASCII code 0x40 greater than the
     // special character. For example, character 0x08 (BS) is echoed as ^H.
-    static ECHOCTL = 0x200,
+    static ECHOCTL = ECHOCTL_,
     // (not in POSIX) If ICANON and ECHO are also set, characters are printed as they are being
     // erased.
-    static ECHOPRT = 0x400,
+    static ECHOPRT = ECHOPRT_,
     // (not in POSIX) If ICANON is also set, KILL is echoed by erasing each character on the line,
     // as specified by ECHOE and ECHOPRT.
-    static ECHOKE = 0x800,
+    static ECHOKE = ECHOKE_,
     // (not in POSIX; not supported under Linux) Output is being flushed.  This flag is toggled by
     // typing the DISCARD character.
-    static FLUSHO = 0x1000,
+    static FLUSHO = FLUSHO_,
     // (not in POSIX; not supported under Linux) All characters in the input queue are reprinted
     // when the next character is read.  (bash(1) handles typeahead this way.)
-    static PENDIN = 0x4000,
+    static PENDIN = PENDIN_,
     // Enable  implementation-defined  input  processing.   This  flag, as well as ICANON must be
     // enabled for the special characters EOL2, LNEXT, REPRINT, WERASE to be interpreted, and for
     // the IUCLC flag to be effective.
-    static IEXTEN = 0x8000
-    // wtf?
-    /* static EXTPROC = 0x10000, */
+    static IEXTEN = IEXTEN_
+
+    /* static EXTPROC = EXTPROC_, */
   }
 }
 
@@ -588,44 +621,44 @@ impl fmt::Show for LocalFlags {
 }
 
 #[deriving(Show)]
-#[repr(uint)]
+#[repr(u32)]
 pub enum Speed {
-  B0       = 0x0,
-  B50      = 0x1,
-  B75      = 0x2,
-  B110     = 0x3,
-  B134     = 0x4,
-  B150     = 0x5,
-  B200     = 0x6,
-  B300     = 0x7,
-  B600     = 0x8,
-  B1200    = 0x9,
-  B1800    = 0xa,
-  B2400    = 0xb,
-  B4800    = 0xc,
-  B9600    = 0xd,
-  B19200   = 0xe,
-  B38400   = 0xf,
-  B57600   = 0x1001,
-  B115200  = 0x1002,
-  B230400  = 0x1003,
-  B460800  = 0x1004,
-  B500000  = 0x1005,
-  B576000  = 0x1006,
-  B921600  = 0x1007,
-  B1000000 = 0x1008,
-  B1152000 = 0x1009,
-  B1500000 = 0x100a,
-  B2000000 = 0x100b,
-  B2500000 = 0x100c,
-  B3000000 = 0x100d,
-  B3500000 = 0x100e,
-  B4000000 = 0x100f,
+  B0       = B0_,
+  B50      = B50_,
+  B75      = B75_,
+  B110     = B110_,
+  B134     = B134_,
+  B150     = B150_,
+  B200     = B200_,
+  B300     = B300_,
+  B600     = B600_,
+  B1200    = B1200_,
+  B1800    = B1800_,
+  B2400    = B2400_,
+  B4800    = B4800_,
+  B9600    = B9600_,
+  B19200   = B19200_,
+  B38400   = B38400_,
+  B57600   = B57600_,
+  B115200  = B115200_,
+  B230400  = B230400_,
+  B460800  = B460800_,
+  B500000  = B500000_,
+  B576000  = B576000_,
+  B921600  = B921600_,
+  B1000000 = B1000000_,
+  B1152000 = B1152000_,
+  B1500000 = B1500000_,
+  B2000000 = B2000000_,
+  B2500000 = B2500000_,
+  B3000000 = B3000000_,
+  B3500000 = B3500000_,
+  B4000000 = B4000000_,
 }
 
-#[repr(C)]
+#[repr(u32)]
 pub enum When {
-  TCSANOW = 0x0,
-  TCSADRAIN = 0x1,
-  TCSAFLUSH = 0x2,
+  TCSANOW   = TCSANOW_,
+  TCSADRAIN = TCSADRAIN_,
+  TCSAFLUSH = TCSAFLUSH_,
 }

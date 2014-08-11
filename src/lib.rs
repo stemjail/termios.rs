@@ -5,8 +5,10 @@ extern crate native;
 use native::io::FileDesc;
 use std::io::{IoResult, IoError};
 pub use types::*;
-use std::mem::zeroed;
+use std::mem::{zeroed, transmute};
+#[allow(visible_private_types)]
 mod types;
+#[allow(non_camel_case_types, dead_code)]
 mod bindings;
 
 pub trait Termio {
@@ -19,7 +21,7 @@ impl Termio for FileDesc {
     let fd = self.fd();
     let mut termios = unsafe { zeroed() };
 
-    if unsafe { bindings::tcgetattr(fd, &mut termios) } < 0 {
+    if unsafe { bindings::tcgetattr(fd, transmute(&mut termios)) } < 0 {
       return Err(IoError::last_error());
     }
 
@@ -29,7 +31,7 @@ impl Termio for FileDesc {
   fn tcsetattr(&mut self, when: When, termios: Termios) -> IoResult<()> {
    let fd = self.fd();
 
-   if unsafe { bindings::tcsetattr(fd, when, &termios) } < 0 {
+   if unsafe { bindings::tcsetattr(fd, when as i32, transmute(&termios)) } < 0 {
      return Err(IoError::last_error());
    }
 
