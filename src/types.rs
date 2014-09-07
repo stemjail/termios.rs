@@ -7,7 +7,7 @@ pub struct Termios {
   pub control_flags: ControlFlags,
   pub local_flags: LocalFlags,
   _line: u8, // line discipline (unused on POSIX)
-  pub control_chars: [u8, ..NCCS_],
+  pub control_chars: [u8, ..NCCS_ as uint],
   pub input_speed: Speed,
   pub output_speed: Speed,
 }

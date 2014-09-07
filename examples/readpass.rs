@@ -4,12 +4,13 @@ use termios::{Termio, TCSANOW, ECHO};
 use native::io::FileDesc;
 use std::io;
 use std::io::timer::sleep;
+use std::time::duration::Duration;
 
 fn main() {
-  let mut fd = FileDesc::new(0, false);
+  let fd = FileDesc::new(0, false);
   let mut termios = fd.tcgetattr().unwrap();
   termios.local_flags.remove(ECHO);
-  fd.tcsetattr(TCSANOW, termios).unwrap();
+  fd.tcsetattr(TCSANOW, &termios).unwrap();
 
   let mut reader = io::stdin();
   loop {
@@ -20,7 +21,7 @@ fn main() {
       break
     }
     println!("access denied");
-    sleep(2000);
+    sleep(Duration::seconds(2));
   }
   println!("access granted")
 }
