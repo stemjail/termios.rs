@@ -13,7 +13,7 @@ pub struct Termios {
 }
 
 impl fmt::Show for Termios {
-  #[allow(unused_must_use, dead_assignment)]
+  #[allow(unused_must_use, unused_assignments)]
   fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
     write!(fmt, "Termios {{ ");
     write!(fmt, "input_flags: {}, ", self.input_flags);
@@ -47,7 +47,6 @@ impl fmt::Show for Termios {
 }
 
 #[deriving(Show)]
-#[allow(uppercase_variables)]
 #[repr(u32)]
 pub enum ControlCharacter {
   VINTR    = VINTR_,
@@ -72,50 +71,50 @@ pub enum ControlCharacter {
 bitflags!{
   flags InputFlags: Enum_iflags {
     // Ignore BREAK condition on input.
-    static IGNBRK  = IGNBRK_,
+    const IGNBRK  = IGNBRK_,
     // If  IGNBRK is set, a BREAK is ignored. If it is not set but BRKINT is set, then a BREAK
     // causes the input and output queues to be flushed, and if the terminal is the controlling
     // terminal of a foreground process group, it will cause a SIGINT to be sent to this foreground
     // process group. When neither IGNBRK nor BRKINT are set, a BREAK reads as a null byte ('\0'),
     // except when PARMRK is set, in which case it reads as the sequence \377 \0 \0.
-    static BRKINT  = BRKINT_,
+    const BRKINT  = BRKINT_,
     // Ignore framing errors and parity errors.
-    static IGNPAR  = IGNPAR_,
+    const IGNPAR  = IGNPAR_,
     // If IGNPAR is not set, prefix a character with a parity error or framing error with \377 \0.
     // If neither IGNPAR nor PARMRK is set, read a character with a parity error or framing error
     // as \0.
-    static PARMRK  = PARMRK_,
+    const PARMRK  = PARMRK_,
     // Enable input parity checking.
-    static INPCK   = INPCK_,
+    const INPCK   = INPCK_,
     // Strip off eighth bit.
-    static ISTRIP  = ISTRIP_,
+    const ISTRIP  = ISTRIP_,
     // Translate NL to CR on input.
-    static INLCR   = INLCR_,
+    const INLCR   = INLCR_,
     // Ignore carriage return on input.
-    static IGNCR   = IGNCR_,
+    const IGNCR   = IGNCR_,
     // Translate carriage return to newline on input (unless IGNCR is set).
-    static ICRNL   = ICRNL_,
+    const ICRNL   = ICRNL_,
     // (not in POSIX) Map uppercase characters to lowercase on input.
-    static IUCLC   = IUCLC_,
+    const IUCLC   = IUCLC_,
     // Enable XON/XOFF flow control on output.
-    static IXON    = IXON_,
+    const IXON    = IXON_,
     // (XSI) Typing any character will restart stopped output.  (The default is to allow just the
     // START character to restart output.)
-    static IXANY   = IXANY_,
+    const IXANY   = IXANY_,
     // Enable XON/XOFF flow control on input.
-    static IXOFF   = IXOFF_,
+    const IXOFF   = IXOFF_,
     // (not in POSIX) Ring bell when input queue is full.  Linux does not implement this bit, and
     // acts as if it is always set.
-    static IMAXBEL = IMAXBEL_,
+    const IMAXBEL = IMAXBEL_,
     // (since Linux 2.6.4) (not in POSIX) Input is UTF8; this allows character-erase to be
     // correctly performed in cooked mode.
-    static IUTF8   = IUTF8_
+    const IUTF8   = IUTF8_
   }
 }
 
 
 impl fmt::Show for InputFlags {
-  #[allow(unused_must_use, dead_assignment)]
+  #[allow(unused_must_use, unused_assignments)]
   fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
     let mut first = true;
     fmt.write_str("InputFlags {");
@@ -203,55 +202,55 @@ impl fmt::Show for InputFlags {
 bitflags!{
   flags OutputFlags: Enum_oflags {
     // Enable implementation-defined output processing.
-    static OPOST  = OPOST_,
+    const OPOST  = OPOST_,
     // (not in POSIX) Map lowercase characters to uppercase on output.
-    static OLCUC  = OLCUC_,
+    const OLCUC  = OLCUC_,
     // (XSI) Map NL to CR-NL on output.
-    static ONLCR  = ONLCR_,
+    const ONLCR  = ONLCR_,
     // Map CR to NL on output.
-    static OCRNL  = OCRNL_,
+    const OCRNL  = OCRNL_,
     // Don't output CR at column 0.
-    static ONOCR  = ONOCR_,
+    const ONOCR  = ONOCR_,
     // Don't output CR.
-    static ONLRET = ONLRET_,
+    const ONLRET = ONLRET_,
 
     // Send fill characters for a delay, rather than using a timed delay.
-    static OFILL  = OFILL_,
+    const OFILL  = OFILL_,
     // Fill character is ASCII DEL (0177).  If unset, fill character is ASCII NUL ('\0').  (Not implemented on Linux.)
-    static OFDEL  = OFDEL_,
+    const OFDEL  = OFDEL_,
 
     // newline delay
-    static NL0    = NL0_,
-    static NL1    = NL1_,
+    const NL0    = NL0_,
+    const NL1    = NL1_,
 
     // carriage return delay
-    static CR0    = CR0_,
-    static CR1    = CR1_,
-    static CR2    = CR2_,
-    static CR3    = CR3_,
+    const CR0    = CR0_,
+    const CR1    = CR1_,
+    const CR2    = CR2_,
+    const CR3    = CR3_,
 
     // tab delay
-    static TAB0   = TAB0_,
-    static TAB1   = TAB1_,
-    static TAB2   = TAB2_,
-    static TAB3   = TAB3_,
+    const TAB0   = TAB0_,
+    const TAB1   = TAB1_,
+    const TAB2   = TAB2_,
+    const TAB3   = TAB3_,
 
     // backspace delay
-    static BS0    = BS0_,
-    static BS1    = BS1_,
+    const BS0    = BS0_,
+    const BS1    = BS1_,
 
     // form feed delay
-    static FF0    = FF0_,
-    static FF1    = FF1_,
+    const FF0    = FF0_,
+    const FF1    = FF1_,
 
     // vertical tab delay
-    static VT0    = VT0_,
-    static VT1    = VT1_
+    const VT0    = VT0_,
+    const VT1    = VT1_
   }
 }
 
 impl fmt::Show for OutputFlags {
-  #[allow(unused_must_use, dead_assignment)]
+  #[allow(unused_must_use, unused_assignments)]
   fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
     let mut first = true;
     fmt.write_str("OutputFlags {");
@@ -367,44 +366,44 @@ impl fmt::Show for OutputFlags {
 bitflags!{
   flags ControlFlags: Enum_cflags {
     // character size
-    static CS5 = CS5_,
-    static CS6 = CS6_,
-    static CS7 = CS7_,
-    static CS8 = CS8_,
+    const CS5 = CS5_,
+    const CS6 = CS6_,
+    const CS7 = CS7_,
+    const CS8 = CS8_,
 
     // Set two stop bits, rather than one.
-    static CSTOPB = CSTOPB_,
+    const CSTOPB = CSTOPB_,
     // Enable receiver.
-    static CREAD = CREAD_,
+    const CREAD = CREAD_,
     // Enable parity generation on output and parity checking for input.
-    static PARENB = PARENB_,
+    const PARENB = PARENB_,
     // If set, then parity for input and output is odd; otherwise even parity is used.
-    static PARODD = PARODD_,
+    const PARODD = PARODD_,
     // Lower modem control lines after last process closes the device (hang up).
-    static HUPCL = HUPCL_,
+    const HUPCL = HUPCL_,
     // Ignore modem control lines.
-    static CLOCAL = CLOCAL_,
+    const CLOCAL = CLOCAL_,
 
     // baud
-    static CBAUD = CBAUD_,
+    const CBAUD = CBAUD_,
     // extended baud
-    static CBAUDEX = CBAUDEX_,
+    const CBAUDEX = CBAUDEX_,
 
     // (not  in  POSIX) Mask for input speeds.  The values for the CIBAUD bits are the same as the
     // values for the CBAUD bits, shifted left IBSHIFT bits. (Not implemented on Linux.)
-    static CIBAUD = CIBAUD_,
+    const CIBAUD = CIBAUD_,
 
     // (not in POSIX) Use "stick" (mark/space) parity (supported on certain serial devices): if
     // PARODD is set, the parity bit is always 1; if PARODD is not set, then the parity  bit  is
     // always  0.
-    static CMSPAR = CMSPAR_,
+    const CMSPAR = CMSPAR_,
     // (not in POSIX) Enable RTS/CTS (hardware) flow control.
-    static CRTSCTS = CRTSCTS_
+    const CRTSCTS = CRTSCTS_
   }
 }
 
 impl fmt::Show for ControlFlags {
-  #[allow(unused_must_use, dead_assignment)]
+  #[allow(unused_must_use, unused_assignments)]
   fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
     let mut first = true;
     fmt.write_str("ControlFlags {");
@@ -487,55 +486,55 @@ bitflags!{
   flags LocalFlags: Enum_lflags {
     // When any of the characters INTR, QUIT, SUSP, or DSUSP are received, generate the
     // corresponding signal.
-    static ISIG = ISIG_,
+    const ISIG = ISIG_,
     // Enable canonical mode
-    static ICANON = ICANON_,
+    const ICANON = ICANON_,
     // (not  in  POSIX; not supported under Linux) If ICANON is also set, terminal is uppercase
     // only.  Input is converted to lowercase, except for characters preceded by \.  On output,
     // uppercase characters are preceded by \ and lowercase characters are converted to uppercase
-    static XCASE = XCASE_,
+    const XCASE = XCASE_,
     // Echo input characters.
-    static ECHO = ECHO_,
+    const ECHO = ECHO_,
     // If ICANON is also set, the ERASE character erases the preceding input character, and WERASE
     // erases the preceding word.
-    static ECHOE = ECHOE_,
+    const ECHOE = ECHOE_,
     // If ICANON is also set, the KILL character erases the current line.
-    static ECHOK = ECHOK_,
+    const ECHOK = ECHOK_,
     // If ICANON is also set, echo the NL character even if ECHO is not set.
-    static ECHONL = ECHONL_,
+    const ECHONL = ECHONL_,
     // Disable flushing the input and output queues when generating signals for the INT, QUIT, and
     // SUSP characters.
-    static NOFLSH = NOFLSH_,
+    const NOFLSH = NOFLSH_,
     // Send the SIGTTOU signal to the process group of a background process which tries to write to
     // its controlling terminal.
-    static TOSTOP = TOSTOP_,
+    const TOSTOP = TOSTOP_,
     // (not in POSIX) If ECHO is also set, terminal special characters other than TAB, NL, START,
     // and STOP are echoed as ^X, where X is the character with ASCII code 0x40 greater than the
     // special character. For example, character 0x08 (BS) is echoed as ^H.
-    static ECHOCTL = ECHOCTL_,
+    const ECHOCTL = ECHOCTL_,
     // (not in POSIX) If ICANON and ECHO are also set, characters are printed as they are being
     // erased.
-    static ECHOPRT = ECHOPRT_,
+    const ECHOPRT = ECHOPRT_,
     // (not in POSIX) If ICANON is also set, KILL is echoed by erasing each character on the line,
     // as specified by ECHOE and ECHOPRT.
-    static ECHOKE = ECHOKE_,
+    const ECHOKE = ECHOKE_,
     // (not in POSIX; not supported under Linux) Output is being flushed.  This flag is toggled by
     // typing the DISCARD character.
-    static FLUSHO = FLUSHO_,
+    const FLUSHO = FLUSHO_,
     // (not in POSIX; not supported under Linux) All characters in the input queue are reprinted
     // when the next character is read.  (bash(1) handles typeahead this way.)
-    static PENDIN = PENDIN_,
+    const PENDIN = PENDIN_,
     // Enable  implementation-defined  input  processing.   This  flag, as well as ICANON must be
     // enabled for the special characters EOL2, LNEXT, REPRINT, WERASE to be interpreted, and for
     // the IUCLC flag to be effective.
-    static IEXTEN = IEXTEN_
+    const IEXTEN = IEXTEN_
 
-    /* static EXTPROC = EXTPROC_, */
+    /* const EXTPROC = EXTPROC_, */
   }
 }
 
 impl fmt::Show for LocalFlags {
-  #[allow(unused_must_use, dead_assignment)]
+  #[allow(unused_must_use, unused_assignments)]
   fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
     let mut first = true;
     fmt.write_str("LocalFlags {");

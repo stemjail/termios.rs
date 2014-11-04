@@ -8,7 +8,6 @@ use native::io::file::fd_t;
 use std::io::{IoResult, IoError};
 pub use types::*;
 use std::mem::{zeroed, transmute};
-#[allow(visible_private_types)]
 mod types;
 #[allow(non_camel_case_types, dead_code)]
 mod bindings;
