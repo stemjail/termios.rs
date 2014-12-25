@@ -1,6 +1,11 @@
 use std::fmt;
 use bindings::*;
 
+pub use self::ControlCharacter::*;
+pub use self::Speed::*;
+pub use self::When::*;
+
+#[deriving(Copy)]
 pub struct Termios {
   pub input_flags: InputFlags,
   pub output_flags: OutputFlags,
@@ -14,7 +19,7 @@ pub struct Termios {
 
 impl fmt::Show for Termios {
   #[allow(unused_must_use, unused_assignments)]
-  fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
+  fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
     write!(fmt, "Termios {{ ");
     write!(fmt, "input_flags: {}, ", self.input_flags);
     write!(fmt, "output_flags: {}, ", self.output_flags);
@@ -46,7 +51,7 @@ impl fmt::Show for Termios {
   }
 }
 
-#[deriving(Show)]
+#[deriving(Copy, Show)]
 #[repr(u32)]
 pub enum ControlCharacter {
   VINTR    = VINTR_,
@@ -115,7 +120,7 @@ bitflags!{
 
 impl fmt::Show for InputFlags {
   #[allow(unused_must_use, unused_assignments)]
-  fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
+  fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
     let mut first = true;
     fmt.write_str("InputFlags {");
 
@@ -251,7 +256,7 @@ bitflags!{
 
 impl fmt::Show for OutputFlags {
   #[allow(unused_must_use, unused_assignments)]
-  fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
+  fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
     let mut first = true;
     fmt.write_str("OutputFlags {");
 
@@ -404,7 +409,7 @@ bitflags!{
 
 impl fmt::Show for ControlFlags {
   #[allow(unused_must_use, unused_assignments)]
-  fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
+  fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
     let mut first = true;
     fmt.write_str("ControlFlags {");
 
@@ -535,7 +540,7 @@ bitflags!{
 
 impl fmt::Show for LocalFlags {
   #[allow(unused_must_use, unused_assignments)]
-  fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::FormatError> {
+  fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
     let mut first = true;
     fmt.write_str("LocalFlags {");
 
@@ -619,7 +624,7 @@ impl fmt::Show for LocalFlags {
   }
 }
 
-#[deriving(Show)]
+#[deriving(Copy, Show)]
 #[repr(u32)]
 pub enum Speed {
   B0       = B0_,
@@ -655,6 +660,7 @@ pub enum Speed {
   B4000000 = B4000000_,
 }
 
+#[deriving(Copy)]
 #[repr(u32)]
 pub enum When {
   TCSANOW   = TCSANOW_,

@@ -1,14 +1,13 @@
 #![feature(globs)]
 #![feature(unsafe_destructor)]
 extern crate libc;
-extern crate native;
 
-use native::io::FileDesc;
-use native::io::file::fd_t;
+use std::os::unix::prelude::*;
 use std::io::{IoResult, IoError};
 pub use types::*;
 use std::mem::{zeroed, transmute};
 mod types;
+
 #[allow(non_camel_case_types, dead_code)]
 mod bindings;
 
@@ -18,11 +17,11 @@ pub trait Termio {
   fn tcsetattr_auto(&self, termios: &Termios) -> IoResult<TermioHandle>;
 }
 
-pub struct TermioHandle(fd_t, Termios);
+pub struct TermioHandle(Fd, Termios);
 
-impl Termio for FileDesc {
+impl<T> Termio for T where T: AsRawFd {
   fn tcgetattr(&self) -> IoResult<Termios> {
-    let fd = self.fd();
+    let fd = self.as_raw_fd();
     let mut termios = unsafe { zeroed() };
 
     if unsafe { bindings::tcgetattr(fd, transmute(&mut termios)) } < 0 {
@@ -33,7 +32,7 @@ impl Termio for FileDesc {
   }
 
   fn tcsetattr(&self, when: When, termios: &Termios) -> IoResult<()> {
-   let fd = self.fd();
+   let fd = self.as_raw_fd();
 
    if unsafe { bindings::tcsetattr(fd, when as i32, transmute(termios)) } < 0 {
      return Err(IoError::last_error());
@@ -44,14 +43,16 @@ impl Termio for FileDesc {
 
   fn tcsetattr_auto(&self, termios: &Termios) -> IoResult<TermioHandle> {
     try!(self.tcsetattr(TCSANOW, termios));
-    Ok(TermioHandle(self.fd(), *termios))
+    Ok(TermioHandle(self.as_raw_fd(), *termios))
   }
 }
 
 impl Drop for TermioHandle {
   fn drop(&mut self) {
-    let &TermioHandle(fd, termios) = self;
-    let fd = FileDesc::new(fd, false);
-    fd.tcsetattr(TCSANOW, &termios).unwrap();
+    self.tcsetattr(TCSANOW, &self.1).unwrap();
   }
+}
+
+impl AsRawFd for TermioHandle {
+  fn as_raw_fd(&self) -> Fd { self.0 }
 }
