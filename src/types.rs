@@ -5,14 +5,14 @@ pub use self::ControlCharacter::*;
 pub use self::Speed::*;
 pub use self::When::*;
 
-#[deriving(Copy)]
+#[derive(Copy)]
 pub struct Termios {
   pub input_flags: InputFlags,
   pub output_flags: OutputFlags,
   pub control_flags: ControlFlags,
   pub local_flags: LocalFlags,
   _line: u8, // line discipline (unused on POSIX)
-  pub control_chars: [u8, ..NCCS_ as uint],
+  pub control_chars: [u8; NCCS_ as usize],
   pub input_speed: Speed,
   pub output_speed: Speed,
 }
@@ -21,29 +21,29 @@ impl fmt::Show for Termios {
   #[allow(unused_must_use, unused_assignments)]
   fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
     write!(fmt, "Termios {{ ");
-    write!(fmt, "input_flags: {}, ", self.input_flags);
-    write!(fmt, "output_flags: {}, ", self.output_flags);
-    write!(fmt, "control_flags: {}, ", self.control_flags);
-    write!(fmt, "local_flags: {}", self.local_flags);
+    write!(fmt, "input_flags: {:?}, ", self.input_flags);
+    write!(fmt, "output_flags: {:?}, ", self.output_flags);
+    write!(fmt, "control_flags: {:?}, ", self.control_flags);
+    write!(fmt, "local_flags: {:?}", self.local_flags);
 
     write!(fmt, "control_chars: {{ ");
     let ref c = self.control_chars;
-    write!(fmt, "VINTR: {}, ", c[VINTR as uint]);
-    write!(fmt, "VQUIT: {}, ", c[VQUIT as uint]);
-    write!(fmt, "VERASE: {}, ", c[VERASE as uint]);
-    write!(fmt, "VKILL: {}, ", c[VKILL as uint]);
-    write!(fmt, "VEOF: {}, ", c[VEOF as uint]);
-    write!(fmt, "VTIME: {}, ", c[VTIME as uint]);
-    write!(fmt, "VMIN: {}, ", c[VMIN as uint]);
-    write!(fmt, "VSTART: {}, ", c[VSTART as uint]);
-    write!(fmt, "VSTOP: {}, ", c[VSTOP as uint]);
-    write!(fmt, "VSUSP: {}, ", c[VSUSP as uint]);
-    write!(fmt, "VEOL: {}, ", c[VEOL as uint]);
-    write!(fmt, "VREPRINT: {}, ", c[VREPRINT as uint]);
-    write!(fmt, "VDISCARD: {}, ", c[VDISCARD as uint]);
-    write!(fmt, "VWERASE: {}, ", c[VWERASE as uint]);
-    write!(fmt, "VLNEXT: {}, ", c[VLNEXT as uint]);
-    write!(fmt, "VEOL2: {} }}", c[VEOL2 as uint]);
+    write!(fmt, "VINTR: {:?}, ", c[VINTR as usize]);
+    write!(fmt, "VQUIT: {:?}, ", c[VQUIT as usize]);
+    write!(fmt, "VERASE: {:?}, ", c[VERASE as usize]);
+    write!(fmt, "VKILL: {:?}, ", c[VKILL as usize]);
+    write!(fmt, "VEOF: {:?}, ", c[VEOF as usize]);
+    write!(fmt, "VTIME: {:?}, ", c[VTIME as usize]);
+    write!(fmt, "VMIN: {:?}, ", c[VMIN as usize]);
+    write!(fmt, "VSTART: {:?}, ", c[VSTART as usize]);
+    write!(fmt, "VSTOP: {:?}, ", c[VSTOP as usize]);
+    write!(fmt, "VSUSP: {:?}, ", c[VSUSP as usize]);
+    write!(fmt, "VEOL: {:?}, ", c[VEOL as usize]);
+    write!(fmt, "VREPRINT: {:?}, ", c[VREPRINT as usize]);
+    write!(fmt, "VDISCARD: {:?}, ", c[VDISCARD as usize]);
+    write!(fmt, "VWERASE: {:?}, ", c[VWERASE as usize]);
+    write!(fmt, "VLNEXT: {:?}, ", c[VLNEXT as usize]);
+    write!(fmt, "VEOL2: {:?} }}", c[VEOL2 as usize]);
 
     write!(fmt, " }}");
 
@@ -51,7 +51,7 @@ impl fmt::Show for Termios {
   }
 }
 
-#[deriving(Copy, Show)]
+#[derive(Copy, Show)]
 #[repr(u32)]
 pub enum ControlCharacter {
   VINTR    = VINTR_,
@@ -624,7 +624,7 @@ impl fmt::Show for LocalFlags {
   }
 }
 
-#[deriving(Copy, Show)]
+#[derive(Copy, Show)]
 #[repr(u32)]
 pub enum Speed {
   B0       = B0_,
@@ -660,7 +660,7 @@ pub enum Speed {
   B4000000 = B4000000_,
 }
 
-#[deriving(Copy)]
+#[derive(Copy)]
 #[repr(u32)]
 pub enum When {
   TCSANOW   = TCSANOW_,
