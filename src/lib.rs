@@ -1,6 +1,8 @@
 #![feature(globs)]
 #![feature(unsafe_destructor)]
 extern crate libc;
+#[macro_use]
+extern crate bitflags;
 
 use std::os::unix::prelude::*;
 use std::io::{IoResult, IoError};
