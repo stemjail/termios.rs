@@ -5,7 +5,7 @@ extern crate libc;
 extern crate bitflags;
 
 use std::os::unix::prelude::*;
-use std::io::{IoResult, IoError};
+use std::old_io::{IoResult, IoError};
 pub use types::*;
 use std::mem::{zeroed, transmute};
 mod types;
