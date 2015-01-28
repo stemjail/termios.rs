@@ -5,7 +5,7 @@ pub use self::ControlCharacter::*;
 pub use self::Speed::*;
 pub use self::When::*;
 
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct Termios {
   pub input_flags: InputFlags,
   pub output_flags: OutputFlags,
@@ -17,7 +17,7 @@ pub struct Termios {
   pub output_speed: Speed,
 }
 
-impl fmt::Show for Termios {
+impl fmt::Debug for Termios {
   #[allow(unused_must_use, unused_assignments)]
   fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
     write!(fmt, "Termios {{ ");
@@ -51,7 +51,7 @@ impl fmt::Show for Termios {
   }
 }
 
-#[derive(Copy, Show)]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum ControlCharacter {
   VINTR    = VINTR_,
@@ -118,7 +118,7 @@ bitflags!{
 }
 
 
-impl fmt::Show for InputFlags {
+impl fmt::Debug for InputFlags {
   #[allow(unused_must_use, unused_assignments)]
   fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
     let mut first = true;
@@ -254,7 +254,7 @@ bitflags!{
   }
 }
 
-impl fmt::Show for OutputFlags {
+impl fmt::Debug for OutputFlags {
   #[allow(unused_must_use, unused_assignments)]
   fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
     let mut first = true;
@@ -407,7 +407,7 @@ bitflags!{
   }
 }
 
-impl fmt::Show for ControlFlags {
+impl fmt::Debug for ControlFlags {
   #[allow(unused_must_use, unused_assignments)]
   fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
     let mut first = true;
@@ -538,7 +538,7 @@ bitflags!{
   }
 }
 
-impl fmt::Show for LocalFlags {
+impl fmt::Debug for LocalFlags {
   #[allow(unused_must_use, unused_assignments)]
   fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
     let mut first = true;
@@ -624,7 +624,7 @@ impl fmt::Show for LocalFlags {
   }
 }
 
-#[derive(Copy, Show)]
+#[derive(Copy, Clone, Debug)]
 #[repr(u32)]
 pub enum Speed {
   B0       = B0_,
@@ -660,7 +660,7 @@ pub enum Speed {
   B4000000 = B4000000_,
 }
 
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 #[repr(u32)]
 pub enum When {
   TCSANOW   = TCSANOW_,
