@@ -1,9 +1,12 @@
 extern crate termios;
-extern crate native;
+
 use termios::Termio;
-use native::io::FileDesc;
+use std::old_io as io;
+use std::os::unix::AsRawFd;
+use std::path::Path;
+
 fn main() {
-  let fd = FileDesc::new(0, false);
-  let termios = fd.tcgetattr().unwrap();
-  println!("{}", termios)
+    let mut tty = io::File::open(&Path::new("/dev/tty")).unwrap();
+    let termios = tty.tcgetattr().unwrap();
+    println!("{:?}", termios)
 }

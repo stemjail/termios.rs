@@ -1,27 +1,32 @@
 extern crate termios;
-extern crate native;
+
 use termios::{Termio, TCSANOW, ECHO};
-use native::io::FileDesc;
-use std::io;
-use std::io::timer::sleep;
+use std::old_io as io;
+use std::os::unix::AsRawFd;
+use std::path::Path;
+use std::old_io::timer::sleep;
 use std::time::duration::Duration;
 
 fn main() {
-  let fd = FileDesc::new(0, false);
-  let mut termios = fd.tcgetattr().unwrap();
-  termios.local_flags.remove(ECHO);
-  fd.tcsetattr(TCSANOW, &termios).unwrap();
+    let mut tty = io::File::open(&Path::new("/dev/tty")).unwrap();
+    let termios = tty.tcgetattr().unwrap();
+    let mut new_termios = termios.clone();
+    new_termios.local_flags.remove(ECHO);
+    tty.tcsetattr(TCSANOW, &new_termios).unwrap();
 
-  let mut reader = io::stdin();
-  loop {
-    print!("Password: ");
-    let input = reader.read_line().unwrap();
-    println!("");
-    if input.as_slice() == "sesame\n" {
-      break
+    let mut reader = io::stdin();
+    loop {
+        print!("Password: ");
+        let input = reader.read_line().unwrap();
+        println!("");
+        if input.as_slice() == "sesame\n" {
+            break
+        }
+        println!("access denied");
+        sleep(Duration::seconds(2));
     }
-    println!("access denied");
-    sleep(Duration::seconds(2));
-  }
-  println!("access granted")
+    println!("access granted");
+
+    // restore terminal
+    tty.tcsetattr(TCSANOW, &termios).unwrap();
 }
