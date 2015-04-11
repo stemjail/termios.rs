@@ -1,11 +1,10 @@
-#![feature(globs)]
-#![feature(unsafe_destructor)]
 extern crate libc;
 #[macro_use]
 extern crate bitflags;
 
 use std::os::unix::prelude::*;
-use std::old_io::{IoResult, IoError};
+use std::io::Result as IoResult;
+use std::io::Error as IoError;
 pub use types::*;
 use std::mem::{zeroed, transmute};
 mod types;
@@ -19,7 +18,7 @@ pub trait Termio {
   fn tcsetattr_auto(&self, termios: &Termios) -> IoResult<TermioHandle>;
 }
 
-pub struct TermioHandle(Fd, Termios);
+pub struct TermioHandle(RawFd, Termios);
 
 impl<T> Termio for T where T: AsRawFd {
   fn tcgetattr(&self) -> IoResult<Termios> {
@@ -27,7 +26,7 @@ impl<T> Termio for T where T: AsRawFd {
     let mut termios = unsafe { zeroed() };
 
     if unsafe { bindings::tcgetattr(fd, transmute(&mut termios)) } < 0 {
-      return Err(IoError::last_error());
+      return Err(IoError::last_os_error());
     }
 
     Ok(termios)
@@ -37,7 +36,7 @@ impl<T> Termio for T where T: AsRawFd {
    let fd = self.as_raw_fd();
 
    if unsafe { bindings::tcsetattr(fd, when as i32, transmute(termios)) } < 0 {
-     return Err(IoError::last_error());
+     return Err(IoError::last_os_error());
    }
 
    Ok(())
@@ -56,5 +55,5 @@ impl Drop for TermioHandle {
 }
 
 impl AsRawFd for TermioHandle {
-  fn as_raw_fd(&self) -> Fd { self.0 }
+  fn as_raw_fd(&self) -> RawFd { self.0 }
 }

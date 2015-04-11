@@ -1,4 +1,4 @@
-use std::old_io as io;
+use std::process as io;
 
 fn make() {
     io::Command::new("make").spawn().unwrap();
