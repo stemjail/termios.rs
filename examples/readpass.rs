@@ -2,6 +2,7 @@ extern crate termios;
 
 use termios::{Termio, TCSANOW, ECHO};
 use std::io;
+use std::io::Write;
 use std::fs;
 
 fn main() {
@@ -11,10 +12,12 @@ fn main() {
     new_termios.local_flags.remove(ECHO);
     tty.tcsetattr(TCSANOW, &new_termios).unwrap();
 
+    let stdout = io::stdout();
     let mut reader = io::stdin();
     loop {
         let mut input = String::new();
         print!("Password: ");
+        stdout.lock().flush().unwrap();
         reader.read_line(&mut input).unwrap();
         println!("");
         if input == "sesame\n" {
