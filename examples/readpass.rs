@@ -1,14 +1,11 @@
 extern crate termios;
 
 use termios::{Termio, TCSANOW, ECHO};
-use std::old_io as io;
-use std::os::unix::AsRawFd;
-use std::path::Path;
-use std::old_io::timer::sleep;
-use std::time::duration::Duration;
+use std::io;
+use std::fs;
 
 fn main() {
-    let mut tty = io::File::open(&Path::new("/dev/tty")).unwrap();
+    let tty = fs::File::open("/dev/tty").unwrap();
     let termios = tty.tcgetattr().unwrap();
     let mut new_termios = termios.clone();
     new_termios.local_flags.remove(ECHO);
@@ -16,14 +13,15 @@ fn main() {
 
     let mut reader = io::stdin();
     loop {
+        let mut input = String::new();
         print!("Password: ");
-        let input = reader.read_line().unwrap();
+        reader.read_line(&mut input).unwrap();
         println!("");
-        if input.as_slice() == "sesame\n" {
+        if input == "sesame\n" {
             break
         }
         println!("access denied");
-        sleep(Duration::seconds(2));
+        std::thread::sleep_ms(2_000);
     }
     println!("access granted");
 
