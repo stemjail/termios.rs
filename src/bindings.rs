@@ -25,8 +25,15 @@ pub type __off_t = ::libc::c_long;
 pub type __off64_t = ::libc::c_long;
 pub type __pid_t = ::libc::c_int;
 #[repr(C)]
+#[derive(Copy)]
 pub struct Struct_Unnamed1 {
-    pub __val: [::libc::c_int; 2us],
+    pub __val: [::libc::c_int; 2usize],
+}
+impl ::std::clone::Clone for Struct_Unnamed1 {
+    fn clone(&self) -> Self { *self }
+}
+impl ::std::default::Default for Struct_Unnamed1 {
+    fn default() -> Self { unsafe { ::std::mem::zeroed() } }
 }
 pub type __fsid_t = Struct_Unnamed1;
 pub type __clock_t = ::libc::c_long;
@@ -61,15 +68,22 @@ pub type cc_t = ::libc::c_uchar;
 pub type speed_t = ::libc::c_uint;
 pub type tcflag_t = ::libc::c_uint;
 #[repr(C)]
+#[derive(Copy)]
 pub struct Struct_termios {
     pub c_iflag: tcflag_t,
     pub c_oflag: tcflag_t,
     pub c_cflag: tcflag_t,
     pub c_lflag: tcflag_t,
     pub c_line: cc_t,
-    pub c_cc: [cc_t; 32us],
+    pub c_cc: [cc_t; 32usize],
     pub c_ispeed: speed_t,
     pub c_ospeed: speed_t,
+}
+impl ::std::clone::Clone for Struct_termios {
+    fn clone(&self) -> Self { *self }
+}
+impl ::std::default::Default for Struct_termios {
+    fn default() -> Self { unsafe { ::std::mem::zeroed() } }
 }
 pub type Enum_Unnamed2 = ::libc::c_uint;
 pub const NCCS_: ::libc::c_uint = 32;
@@ -206,27 +220,26 @@ pub const B2500000_: ::libc::c_uint = 4108;
 pub const B3000000_: ::libc::c_uint = 4109;
 pub const B3500000_: ::libc::c_uint = 4110;
 pub const B4000000_: ::libc::c_uint = 4111;
-extern "C" { }
 extern "C" {
     pub fn cfgetospeed(__termios_p: *const Struct_termios) -> speed_t;
     pub fn cfgetispeed(__termios_p: *const Struct_termios) -> speed_t;
-    pub fn cfsetospeed(__termios_p: *mut Struct_termios, __speed: speed_t) ->
-     ::libc::c_int;
-    pub fn cfsetispeed(__termios_p: *mut Struct_termios, __speed: speed_t) ->
-     ::libc::c_int;
-    pub fn cfsetspeed(__termios_p: *mut Struct_termios, __speed: speed_t) ->
-     ::libc::c_int;
-    pub fn tcgetattr(__fd: ::libc::c_int, __termios_p: *mut Struct_termios) ->
-     ::libc::c_int;
+    pub fn cfsetospeed(__termios_p: *mut Struct_termios, __speed: speed_t)
+     -> ::libc::c_int;
+    pub fn cfsetispeed(__termios_p: *mut Struct_termios, __speed: speed_t)
+     -> ::libc::c_int;
+    pub fn cfsetspeed(__termios_p: *mut Struct_termios, __speed: speed_t)
+     -> ::libc::c_int;
+    pub fn tcgetattr(__fd: ::libc::c_int, __termios_p: *mut Struct_termios)
+     -> ::libc::c_int;
     pub fn tcsetattr(__fd: ::libc::c_int, __optional_actions: ::libc::c_int,
                      __termios_p: *const Struct_termios) -> ::libc::c_int;
-    pub fn cfmakeraw(__termios_p: *mut Struct_termios);
-    pub fn tcsendbreak(__fd: ::libc::c_int, __duration: ::libc::c_int) ->
-     ::libc::c_int;
+    pub fn cfmakeraw(__termios_p: *mut Struct_termios) -> ();
+    pub fn tcsendbreak(__fd: ::libc::c_int, __duration: ::libc::c_int)
+     -> ::libc::c_int;
     pub fn tcdrain(__fd: ::libc::c_int) -> ::libc::c_int;
-    pub fn tcflush(__fd: ::libc::c_int, __queue_selector: ::libc::c_int) ->
-     ::libc::c_int;
-    pub fn tcflow(__fd: ::libc::c_int, __action: ::libc::c_int) ->
-     ::libc::c_int;
+    pub fn tcflush(__fd: ::libc::c_int, __queue_selector: ::libc::c_int)
+     -> ::libc::c_int;
+    pub fn tcflow(__fd: ::libc::c_int, __action: ::libc::c_int)
+     -> ::libc::c_int;
     pub fn tcgetsid(__fd: ::libc::c_int) -> __pid_t;
 }
